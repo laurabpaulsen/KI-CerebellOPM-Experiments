@@ -278,9 +278,16 @@ class Experiment:
         """
         Loop over the events in the experiment
         """
+        # how many breaks
+        total_breaks = events.count("break")
+
+        n_breaks_done = 0
+
+
         for i, trial in enumerate(events):
             if trial == "break":
                 self.check_in_on_participant(log_file=log_file)
+                n_breaks_done += 1
                 continue
             
             event_type = trial["event_type"]
@@ -293,19 +300,18 @@ class Experiment:
             
             # deliver pulse
             self.deliver_stimulus(event_type)
-            
+            print(f"Progress: {i+1}/{len(events)}, Breaks: {n_breaks_done}/{total_breaks}", end='\r')
+
             stim_time = time.perf_counter() - self.start_time
             
-            if log_file:
-                self.log_event(
-                    **trial,
-                    event_time=stim_time,
-                    intensity=intensity,
-                    rt="NA",
-                    trigger=trigger,
-                    correct="NA",
-                    log_file=log_file
-                )
+
+            self.log_event(
+                **trial,
+                event_time=stim_time,
+                intensity=intensity,
+                trigger=trigger,
+                log_file=log_file
+            )
             
             print(f"Event: {event_type}, intensity: {intensity}")
 
@@ -452,8 +458,6 @@ class Experiment:
                 trigger=self.trigger_mapping["experiment/start"],
                 log_file=log_file
                 )
-
-
             
             self.loop_over_events(self.events, log_file)
 
