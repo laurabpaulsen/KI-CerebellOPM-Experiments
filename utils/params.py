@@ -9,8 +9,8 @@ if os.name == "posix":
     middle_connector_port = "/dev/tty.usbserial-A50027ER"
 else:
     # Windows
-    index_connector_port = "COM4"
-    middle_connector_port = "COM7"
+    index_connector_port = "COM5"
+    middle_connector_port = "COM4"
 
 
 connectors = {
