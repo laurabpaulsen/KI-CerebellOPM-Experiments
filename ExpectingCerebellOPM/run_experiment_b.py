@@ -21,14 +21,8 @@ from psychopy.core import wait
 
 from collections import Counter
 
+from utils.params import index_connector_port, middle_connector_port
 
-import os
-if os.name != "posix":
-    from winsound import PlaySound, SND_FILENAME
-else:
-    SND_FILENAME = None
-    def PlaySound(*args, **kwargs):
-        pass
 
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
 STIM_DURATION = 100  # 0.1 ms
@@ -368,11 +362,12 @@ if __name__ in "__main__":
     break_sound_path = Path(__file__).parents[1] / "utils" / "sound.wav"
 
     connectors = {
-        #"middle":  SGCConnector(port=middle_connector_port, start_intensity=1),
-        #"index": SGCConnector(port=index_connector_port, start_intensity=1),
-        "middle": SGCFakeConnector(start_intensity=1),
-        "index": SGCFakeConnector(start_intensity=1)
+        "middle":  SGCConnector(port=middle_connector_port, intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
+        "index": SGCConnector(port=index_connector_port, intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
+        #"middle": SGCFakeConnector(intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
+        #"index": SGCFakeConnector(intensity_codes_path=Path("intensity_code.csv"), start_intensity=1)
     }
+
 
     # wait 2 seconds
     wait(2)

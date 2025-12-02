@@ -4,7 +4,6 @@ Discriminating weak index and middle finger targets following three salient rhyt
 
 import sys
 print(f"Python version: {sys.version}")
-import time
 from pathlib import Path
 from typing import Union,List, Tuple, Optional
 from collections import Counter
@@ -19,8 +18,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 from utils.experiment import Experiment
 from utils.SGC_connector import SGCConnector, SGCFakeConnector
 from utils.triggers import create_trigger_mapping
-
-# print version of python
+from utils.params import index_connector_port, middle_connector_port# print version of python
 
 
 # CONFIG
