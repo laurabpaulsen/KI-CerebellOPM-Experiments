@@ -227,6 +227,7 @@ class ExpectationExperiment:
             log_file.write(self.LOGHEADER)
 
             for i_block, block in enumerate(self.blocks):
+                print(f"Starting block {i_block + 1} of {len(self.blocks)}")
                 self.initialise_block()
                 for event in block:
                     response, correct, response_time = None, None, None
