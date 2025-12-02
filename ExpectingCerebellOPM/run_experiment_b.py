@@ -242,6 +242,7 @@ class ExpectationExperiment:
                         correct = response in self.response_keys[event["second"]]
                         self.raise_and_lower_trigger(self.trigger_mapping["response"])
                         self.listener.active = False
+                        
                     else:
                         while self.countdown_timer.getTime() > 0:
                             response = self.listener.get_response()
@@ -253,6 +254,7 @@ class ExpectationExperiment:
                                 response_time = time.perf_counter() - time_second
 
                                 correct = response in self.response_keys[event["second"]]
+                                print(f" Response: {response} | Correct: {correct} | RT: {response_time:.3f} seconds")
                                     
                                 break
                         
