@@ -1,5 +1,5 @@
 import os
-from SGC_connector import SGCConnector, SGCFakeConnector
+from .SGC_connector import SGCConnector, SGCFakeConnector
 from pathlib import Path
 # check whether it is running on mac or windows
 
