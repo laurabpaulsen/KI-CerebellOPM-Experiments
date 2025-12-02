@@ -7,6 +7,7 @@ import time
 from psychopy.clock import CountdownTimer
 from psychopy import core
 from psychopy.data import QuestPlusHandler, QuestHandler
+from psychopy.core import wait
 
 from utils.responses import KeyboardListener
 from utils.triggers import setParallelData
