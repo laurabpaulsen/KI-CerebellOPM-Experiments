@@ -371,8 +371,9 @@ class Experiment:
             self.listener.active = False
 
 
-    def log_event(self, event_time, block, ISI, intensity, event_type, trigger, n_in_block, correct, reset_QUEST, rt, log_file):
-        log_file.write(f"{event_time},{block},{ISI},{intensity},{event_type},{trigger},{n_in_block},{correct},{reset_QUEST},{rt}\n")
+    def log_event(self, event_time="NA", block="NA", ISI="NA", intensity="NA", event_type="NA", trigger="NA", n_in_block="NA", correct="NA", reset_QUEST="NA", rt="NA", log_file=None):
+        if log_file:
+            log_file.write(f"{event_time},{block},{ISI},{intensity},{event_type},{trigger},{n_in_block},{correct},{reset_QUEST},{rt}\n")
     
     
     def get_user_input_respiratory_rate(self):
@@ -444,20 +445,13 @@ class Experiment:
 
             if self.send_trigger:
                 self.raise_and_lower_trigger(self.trigger_mapping["experiment/start"])
-                if log_file:
-                    self.log_event(
-                        event_time=time.perf_counter() - self.start_time,
-                        block="NA",
-                        ISI="NA",
-                        intensity="NA",
-                        event_type="experiment/start",
-                        trigger=self.trigger_mapping["experiment/start"],
-                        n_in_block="NA",
-                        correct="NA",
-                        reset_QUEST=False,
-                        rt="NA",
-                        log_file=log_file
-                    )
+
+            self.log_event(
+                event_time=time.perf_counter() - self.start_time, 
+                event_type="experiment/start",
+                trigger=self.trigger_mapping["experiment/start"],
+                log_file=log_file
+                )
 
 
             
@@ -465,19 +459,12 @@ class Experiment:
 
             if self.send_trigger:
                 self.raise_and_lower_trigger(self.trigger_mapping["experiment/end"])
-                if log_file:
-                    self.log_event(
-                        event_time=time.perf_counter() - self.start_time,
-                        block="experiment",
-                        ISI="NA",
-                        intensity="NA",
-                        event_type="experiment/end",
-                        trigger=self.trigger_mapping["experiment/end"],
-                        n_in_block="NA",
-                        correct="NA",
-                        reset_QUEST=False,
-                        rt="NA",
-                        log_file=log_file
-                    )
+
+            self.log_event(
+                event_time=time.perf_counter() - self.start_time,
+                event_type="experiment/end",
+                trigger=self.trigger_mapping["experiment/end"],
+                log_file=log_file
+                )
 
         self.listener.stop_listener()  # Stop the keyboard listener
