@@ -40,7 +40,7 @@ class ExpectationExperiment:
         trigger_mapping:dict, 
         outpath: Union[str, Path], 
         connectors: dict,
-        prop_expected_unexpected:list[float] = [0.75, 0.25], 
+        prop_expected_unexpected:list = [0.75, 0.25], 
         first_stimuli = ["middle", "index"], 
         second_stimuli = ["middle", "index"], 
         trigger_duration = 0.001,
