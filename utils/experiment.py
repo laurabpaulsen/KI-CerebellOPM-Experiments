@@ -254,7 +254,7 @@ class Experiment:
                     log_file=log_file
                 )
 
-        self.play_break_sound()
+        #self.play_break_sound()
         input(message + " Press Enter to continue...")
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/end"])

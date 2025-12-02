@@ -16,7 +16,6 @@ import numpy as np
 sys.path.append(str(Path(__file__).parents[1]))
 
 from utils.experiment import Experiment
-from utils.SGC_connector import SGCConnector, SGCFakeConnector
 from utils.triggers import create_trigger_mapping
 from utils.params import connectors 
 
@@ -33,15 +32,7 @@ STIM_DURATION = 100  # 0.1 ms
 OUTPUT_PATH = Path(__file__).parent / "output"
 OUTPUT_PATH.mkdir(exist_ok=True)
 
-# check whether it is running on mac or windows
-if os.name == "posix":
-    # macOS
-    index_connector_port = "/dev/tty.usbserial-A50027EN"
-    middle_connector_port = "/dev/tty.usbserial-A50027ER"
-else:
-    # Windows
-    index_connector_port = "COM6"
-    middle_connector_port = "COM7"
+
 
 
 # UTILITIES
@@ -283,7 +274,6 @@ if __name__ == "__main__":
 
     print(f"Behavioural data will be saved to: {logfile}")
 
-    
 
     # wait 2 seconds
     wait(2)

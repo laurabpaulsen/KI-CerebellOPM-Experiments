@@ -15,7 +15,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 
 from utils.triggers import setParallelData
 from utils.responses import KeyboardListener
-from utils.SGC_connector import SGCConnector, SGCFakeConnector
+
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
@@ -284,7 +284,7 @@ class ExpectationExperiment:
 
         self.log_event(block="break_start", time_first=time.perf_counter() - self.start_time, log_file=log_file)
 
-        self.play_break_sound()
+        #self.play_break_sound()
         input(message + " Press Enter to continue...")
         
         if self.send_trigger:
