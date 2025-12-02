@@ -300,7 +300,7 @@ class Experiment:
             
             # deliver pulse
             self.deliver_stimulus(event_type)
-            print(f"Progress: {i+1}/{len(events)}, Breaks: {n_breaks_done}/{total_breaks}", end='\r')
+            print(f"Progress: {i+1}/{len(events)}, Breaks: {n_breaks_done}/{total_breaks}")
 
             stim_time = time.perf_counter() - self.start_time
             
