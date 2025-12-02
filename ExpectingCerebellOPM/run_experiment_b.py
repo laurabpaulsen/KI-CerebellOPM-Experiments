@@ -1,17 +1,16 @@
 """
-MAKE SURE LISTNER IS ONLY ACTIVE DURING RESPONSE TIME WINDOW
 
 """
 
 import sys
 from pathlib import Path
+sys.path.append(str(Path(__file__).parents[1]))
+
+
 import time
 from typing import Union
 import numpy as np
 import copy
-
-
-sys.path.append(str(Path(__file__).parents[1]))
 
 from utils.triggers import setParallelData
 from utils.responses import KeyboardListener
@@ -22,13 +21,6 @@ from psychopy.core import wait
 from collections import Counter
 from utils.params import connectors
 
-import os
-if os.name != "posix":
-    from winsound import PlaySound, SND_FILENAME
-else:
-    SND_FILENAME = None
-    def PlaySound(*args, **kwargs):
-        pass
 
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
 STIM_DURATION = 100  # 0.1 ms
@@ -168,10 +160,10 @@ class ExpectationExperiment:
 
         print(f"Total number of events: {len(self.blocks)}")
     
-    def play_break_sound(self):
-        # Play a sound to indicate a break
-        if self.break_sound_path:
-            PlaySound(str(self.break_sound_path), SND_FILENAME)
+    #def play_break_sound(self):
+    #    # Play a sound to indicate a break
+    #    if self.break_sound_path:
+    #        PlaySound(str(self.break_sound_path), SND_FILENAME)
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
@@ -227,9 +219,9 @@ class ExpectationExperiment:
             log_file.write(self.LOGHEADER)
 
             for i_block, block in enumerate(self.blocks):
-                print(f"Starting block {i_block + 1} of {len(self.blocks)}")
                 self.initialise_block()
-                for event in block:
+                for i, event in enumerate(block):
+                    print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}")
                     response, correct, response_time = None, None, None
     
                     time_first = time.perf_counter()

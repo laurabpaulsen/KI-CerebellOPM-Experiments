@@ -3,17 +3,14 @@ Discriminating weak index and middle finger targets following three salient rhyt
 """
 
 import sys
-print(f"Python version: {sys.version}")
 from pathlib import Path
-from typing import Union,List, Tuple, Optional
+sys.path.append(str(Path(__file__).parents[1]))
+
+from typing import Union, List, Tuple, Optional
 from collections import Counter
 import random
-import os
 from psychopy.core import wait
 import numpy as np
-
-# local imports
-sys.path.append(str(Path(__file__).parents[1]))
 
 from utils.experiment import Experiment
 from utils.triggers import create_trigger_mapping
@@ -31,8 +28,6 @@ STIM_DURATION = 100  # 0.1 ms
 
 OUTPUT_PATH = Path(__file__).parent / "output"
 OUTPUT_PATH.mkdir(exist_ok=True)
-
-
 
 
 # UTILITIES
