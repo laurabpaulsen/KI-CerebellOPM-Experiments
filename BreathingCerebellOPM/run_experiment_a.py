@@ -18,7 +18,7 @@ sys.path.append(str(Path(__file__).parents[1]))
 from utils.experiment import Experiment
 from utils.SGC_connector import SGCConnector, SGCFakeConnector
 from utils.triggers import create_trigger_mapping
-from utils.params import index_connector_port, middle_connector_port# print version of python
+from utils.params import connectors 
 
 
 # CONFIG
@@ -283,12 +283,7 @@ if __name__ == "__main__":
 
     print(f"Behavioural data will be saved to: {logfile}")
 
-    connectors = {
-        "middle":  SGCConnector(port=middle_connector_port, intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
-        "index": SGCConnector(port=index_connector_port, intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
-        #"middle": SGCFakeConnector(intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
-        #"index": SGCFakeConnector(intensity_codes_path=Path("intensity_code.csv"), start_intensity=1)
-    }
+    
 
     # wait 2 seconds
     wait(2)
