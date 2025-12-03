@@ -106,7 +106,7 @@ class Experiment:
         # for response handling 
         self.listener = KeyboardListener()
         self.keys_target = {
-            target_1: ['2', 'y'],
+            target_1: ['2', 'r'],
             target_2: ['1', 'b']
         }
         
