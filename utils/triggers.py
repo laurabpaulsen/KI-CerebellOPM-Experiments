@@ -5,7 +5,7 @@ Description: This file contains the code for sending triggers to the neuroimagin
 from psychopy import parallel
 
 
-port = parallel.ParallelPort(address=0x3FD8)
+port = parallel.ParallelPort(address="dev1") # maybe port 9 at KI! or dev1
 print(f"Parallel port {port} initialised.")
 
 # Figure out whether to flip pins or fake it
