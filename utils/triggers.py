@@ -22,7 +22,6 @@ else:
     port.setData(0)
     setParallelData = port.setData
 
-
 def create_trigger_mapping(
         stim = 1,
         target = 2,
@@ -47,4 +46,3 @@ def create_trigger_mapping(
         }
 
     return trigger_mapping
-
