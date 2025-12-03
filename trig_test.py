@@ -17,7 +17,7 @@ with nidaqmx.Task() as task:
 
         # ---- Pulse ----
         task.write(bits, auto_start=True)   # <-- crucial fix
-        time.sleep(0.01)
+        time.sleep(0.1)
         task.write([0]*8, auto_start=True)
 
     print("Done.")
