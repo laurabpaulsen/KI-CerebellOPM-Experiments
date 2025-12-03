@@ -9,39 +9,50 @@ import time
 
 
 # ---- CONFIGURE THIS ----
-CHANNEL = "Dev1/port9/line0:7"   # all 8 bits on port 5
-PULSE_WIDTH = 0.1             # 100 ms trigger
+CHANNEL = "Dev1/port9/line0:7"   # All 8 lines of port 9
+PULSE_WIDTH = 0.1                # 100 ms trigger pulse
 # -------------------------
 
 
-# Prepare task
-try:
-    trigger_task = nidaqmx.Task()
-    trigger_task.do_channels.add_do_chan(CHANNEL)
-    print(f"NI-DAQmx trigger task initialised on {CHANNEL}.")
-except Exception as e:
-    print("Could not initialise NI-DAQmx device:")
-    print(e)
-    trigger_task = None
+# Global task (initialized once)
+_trigger_task = None
 
 
-def setParallelData(bits):
+def _init_task():
+    """Create the NI-DAQmx digital output task once."""
+    global _trigger_task
+    if _trigger_task is None:
+        _trigger_task = nidaqmx.Task()
+        _trigger_task.do_channels.add_do_chan(
+            CHANNEL,
+            line_grouping=nidaqmx.constants.LineGrouping.CHAN_FOR_ALL_LINES
+        )
+        print(f"NI-DAQmx trigger task initialised on {CHANNEL}.")
+
+
+def setParallelData(bitlist):
     """
-    Send an 8-bit trigger code via NI-DAQmx.
+    Send an 8-bit trigger vector via NI-DAQmx.
+    bitlist example: [1,0,0,0,0,0,0,0]
     """
-    if trigger_task is None:
-        print(f"TRIG {bits} (Fake — NI device not initialised)")
-        return
+    _init_task()
 
-    # Pulse out
-    trigger_task.write(bits, auto_start=True)
+    # Ensure values are bool (NI expects True/False)
+    values = [bool(b) for b in bitlist]
+
+    # Rising edge
+    _trigger_task.write(values, auto_start=True)
     time.sleep(PULSE_WIDTH)
-    trigger_task.write([0] * 8, auto_start=True)
+
+    # Back to zero
+    _trigger_task.write([False] * 8, auto_start=True)
 
 
 def create_trigger_mapping():
-
-    trigger_mapping = {
+    """
+    Return a dict mapping event names to 8-bit trigger lists.
+    """
+    return {
         "stim/salient": [1, 0, 0, 0, 0, 0, 0, 0],
         "target/middle": [0, 1, 0, 0, 0, 0, 0, 0],
         "target/index": [0, 0, 1, 0, 0, 0, 0, 0],
@@ -53,6 +64,4 @@ def create_trigger_mapping():
         "break/end": [0, 0, 0, 0, 1, 1, 1, 0],
         "experiment/start": [1, 1, 0, 0, 0, 0, 0, 0],
         "experiment/end": [0, 0, 0, 0, 0, 0, 0, 1],
-        }
-
-    return trigger_mapping
+    }
