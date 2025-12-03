@@ -10,7 +10,7 @@ from psychopy.data import QuestPlusHandler, QuestHandler
 from psychopy.core import wait
 
 from utils.responses import KeyboardListener
-from utils.triggers_nidaqmx import setParallelData
+
 
 import os
 if os.name != "posix":
@@ -396,7 +396,7 @@ class Experiment:
 
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
+        pass
     
     def correct_or_incorrect(self, key, event_type):
         if key in self.keys_target[event_type.split('/')[-1]]:

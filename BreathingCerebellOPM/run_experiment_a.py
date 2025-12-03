@@ -15,6 +15,7 @@ import numpy as np
 from utils.experiment import Experiment
 from utils.triggers import create_trigger_mapping
 from utils.params import connectors 
+from utils.triggers_nidaqmx import setParallelData
 
 
 # CONFIG
@@ -252,6 +253,8 @@ def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
 
     return order
 
+    def raise_and_lower_trigger(self, trigger):
+        setParallelData(trigger)
 
 if __name__ == "__main__":
     # --- Collect participant info ---
