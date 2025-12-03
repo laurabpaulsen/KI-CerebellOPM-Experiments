@@ -1,24 +1,28 @@
-import nidaqmx
 import time
+from utils.triggers_nidaqmx import setParallelData, create_trigger_mapping
 
-CHANNEL = "Dev1/port9/line0:7"
+print("Loading trigger mapping...")
+mapping = create_trigger_mapping()
 
-with nidaqmx.Task() as task:
-    # On-demand digital output — NO timing configured
-    task.do_channels.add_do_chan(CHANNEL)
+print("Starting trigger test...\n")
 
-    print(f"Using {CHANNEL}")
+# List of keys you want to test
+keys_to_test = [
+    "stim/salient",
+    "target/middle",
+    "target/index",
+    "response/index/correct",
+    "response/middle/correct",
+    "break/start",
+    "break/end",
+    "experiment/start",
+    "experiment/end",
+]
 
-    for i in range(8):
-        value = 1 << i                      # 1,2,4,8,...128
-        bits = [(value >> b) & 1 for b in range(8)]
+for key in keys_to_test:
+    bits = mapping[key]
+    print(f"Sending trigger: {key} -> {bits}")
+    setParallelData(bits)
+    time.sleep(0.5)
 
-        print(f"Pulse on line {i} (value={value})")
-
-        # ---- Pulse ----
-        task.write(bits, auto_start=True)   # <-- crucial fix
-        time.sleep(0.1)
-        task.write([0]*8, auto_start=True)
-
-    print("Done.")
-
+print("\nDone. If everything is wired correctly, you should see all of these pulses.")
