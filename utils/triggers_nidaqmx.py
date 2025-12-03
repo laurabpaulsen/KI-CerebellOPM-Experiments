@@ -25,7 +25,7 @@ except Exception as e:
     trigger_task = None
 
 
-def setParallelData(bits: list[int]):
+def setParallelData(bits):
     """
     Send an 8-bit trigger code via NI-DAQmx.
     """
