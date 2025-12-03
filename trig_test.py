@@ -1,7 +1,7 @@
 import nidaqmx
 import time
 
-CHANNEL = "Dev1/port5/line0:7"
+CHANNEL = "Dev1/port9/line0:7"
 
 with nidaqmx.Task() as task:
     # On-demand digital output — NO timing configured
