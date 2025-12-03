@@ -10,7 +10,7 @@ import time
 
 # ---- CONFIGURE THIS ----
 CHANNEL = "Dev1/port9/line0:7"   # All 8 lines of port 9
-PULSE_WIDTH = 0.1                # 100 ms trigger pulse
+PULSE_WIDTH = 0.005 # seconds (5 ms)
 # -------------------------
 
 
