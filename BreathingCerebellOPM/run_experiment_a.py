@@ -13,7 +13,7 @@ from psychopy.core import wait
 import numpy as np
 
 from utils.experiment import Experiment
-from utils.triggers import create_trigger_mapping
+from utils.triggers_nidaqmx import create_trigger_mapping
 from utils.params import connectors 
 from utils.triggers_nidaqmx import setParallelData
 
