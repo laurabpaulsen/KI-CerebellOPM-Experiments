@@ -369,28 +369,7 @@ if __name__ in "__main__":
 
     duration = experiment.calculate_duration()
     print(f"Estimated duration: {duration/60} minutes")
-    print(len(experiment.blocks[0]))
 
 
-    # Replace this with your actual data
-    all_blocks = experiment.blocks # list of blocks, each a list of events
-
-    # Flatten all events from all blocks
-    all_events = [event for block in all_blocks for event in block]
-
-    # Count combinations of expected + repeated
-    combo_counts = Counter((e['second'], e['expected'], e['repeated']) for e in all_events)
-
-    # Print results
-    print("Counts by (second, expected, repeated):")
-    for (second, expected, repeated), count in combo_counts.items():
-        print(f"  {second}, {expected}, {repeated}: {count}")
-
-    # Print results
-    combo_counts = Counter((e['expected'], e['repeated']) for e in all_events)
-
-    print("Counts by (expected, repeated):")
-    for (expected, repeated), count in combo_counts.items():
-        print(f"  {expected}, {repeated}: {count}")
     
     experiment.run()
