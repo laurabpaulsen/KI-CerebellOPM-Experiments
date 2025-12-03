@@ -41,7 +41,10 @@ def setParallelData(bitlist):
     values = [bool(b) for b in bitlist]
 
     # Rising edge
-    _trigger_task.write(values, auto_start=True)
+    # convert to number
+    value = sum(1 << i for i, bit in enumerate(values) if bit)
+
+    _trigger_task.write(value, auto_start=True)
     time.sleep(PULSE_WIDTH)
 
     # Back to zero
