@@ -183,7 +183,6 @@ class ExpectationExperiment:
             total_time += 60  # assuming fixed 60 seconds break between blocks
 
             for event in block:
-                print(event)
                 total_time += self.ISI  # ISI time
                 total_time += event["IPI"]  # Inter-pair interval
                 if event["behaviour"]:
