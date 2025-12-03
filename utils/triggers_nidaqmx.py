@@ -44,20 +44,28 @@ def setParallelData(code):
     _trigger_task.write([False] * 8, auto_start=True)
 
 
-def create_trigger_mapping():
-    """
-    Return a dict mapping event names to 8-bit trigger lists.
-    """
-    return {
-        "stim/salient": [1, 0, 0, 0, 0, 0, 0, 0],
-        "target/middle": [0, 1, 0, 0, 0, 0, 0, 0],
-        "target/index": [0, 0, 1, 0, 0, 0, 0, 0],
-        "response/index/correct": [0, 0, 0, 1, 1, 0, 0, 0],
-        "response/middle/incorrect": [0, 0, 0, 0, 1, 1, 0, 0],
-        "response/middle/correct": [0, 0, 0, 0, 1, 0, 1, 0],
-        "response/index/incorrect": [0, 0, 0, 1, 0, 1, 0, 0],
-        "break/start": [0, 0, 1, 1, 0, 0, 0, 0],
-        "break/end": [0, 0, 0, 0, 1, 1, 1, 0],
-        "experiment/start": [1, 1, 0, 0, 0, 0, 0, 0],
-        "experiment/end": [0, 0, 0, 0, 0, 0, 0, 1],
-    }
+
+def create_trigger_mapping(
+        stim = 1,
+        target = 2,
+        middle = 4,
+        index = 8,
+        response = 16,
+        correct = 32,
+        incorrect = 64):
+    
+    trigger_mapping = {
+        "stim/salient": stim,
+        "target/middle": target + middle,
+        "target/index": target + index,
+        "response/index/correct": response + index + correct,
+        "response/middle/incorrect": response + middle + incorrect,
+        "response/middle/correct": response + middle + correct,
+        "response/index/incorrect": response + index + incorrect,
+        "break/start": 128,
+        "break/end": 129,
+        "experiment/start": 254,
+        "experiment/end": 255
+        }
+
+    return trigger_mapping
