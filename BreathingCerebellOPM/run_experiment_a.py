@@ -218,6 +218,9 @@ class MiddleIndexTactileDiscriminationTask(Experiment):
         self.loop_over_events(trial_sequence_events, log_file=None)
         self.listener.stop_listener()  # Stop the keyboard listener
 
+    def raise_and_lower_trigger(self, trigger):
+        setParallelData(trigger)
+
 def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
     """
     Generate a sequence of block indices and 'break' markers.
@@ -253,8 +256,7 @@ def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
 
     return order
 
-    def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
+
 
 if __name__ == "__main__":
     # --- Collect participant info ---
