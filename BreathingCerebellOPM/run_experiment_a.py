@@ -162,7 +162,6 @@ class MiddleIndexTactileDiscriminationTask(Experiment):
             n_sequences: int = 10,
             prop_middle_index: List[float] = [0.5, 0.5],
             intensities: dict = {"salient": 6.0, "weak": 2.0},
-            trigger_duration: float = 0.001,
             QUEST_target: float = 0.75,
             reset_QUEST: Union[int, bool] = False, # how many blocks before resetting QUEST
             QUEST_plus: bool = True,
@@ -181,7 +180,6 @@ class MiddleIndexTactileDiscriminationTask(Experiment):
             target_1="middle",
             target_2="index",
             intensities = intensities,
-            trigger_duration = trigger_duration,
             QUEST_target = QUEST_target,
             reset_QUEST = reset_QUEST,
             QUEST_plus = QUEST_plus,
@@ -294,7 +292,6 @@ if __name__ == "__main__":
         reset_QUEST=RESET_QUEST, # reset QUEST every x blocks
         ISIs=ISIS,
         trigger_mapping=create_trigger_mapping(),
-        trigger_duration=0.005,
         send_trigger=False, # after running the trial block it is set to True
         logfile = logfile,
         SGC_connectors=connectors,
@@ -303,8 +300,8 @@ if __name__ == "__main__":
     )
 
     print_experiment_information(experiment)
-    experiment.check_in_on_participant(message="Ready to begin practice block.")
-    experiment.trial_block(ISI=1.5, n_sequences=12) # practice block
+    #experiment.check_in_on_participant(message="Ready to begin practice block.")
+    #experiment.trial_block(ISI=1.5, n_sequences=12) # practice block
 
     # possiblility to update intensities after practice
     while True:
