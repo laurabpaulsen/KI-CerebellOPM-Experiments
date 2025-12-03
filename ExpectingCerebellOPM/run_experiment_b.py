@@ -12,7 +12,7 @@ from typing import Union
 import numpy as np
 import copy
 
-from utils.triggers import setParallelData
+from utils.triggers_nidaqmx import setParallelData
 from utils.responses import KeyboardListener
 
 from psychopy.clock import CountdownTimer
@@ -35,7 +35,6 @@ class ExpectationExperiment:
         prop_expected_unexpected:list = [0.75, 0.25], 
         first_stimuli = ["middle", "index"], 
         second_stimuli = ["middle", "index"], 
-        trigger_duration = 0.001,
         behavioural_task:Union[bool, str] = "second",
         max_response_time: float = 4,
         n_events_per_block = 100,
@@ -56,7 +55,6 @@ class ExpectationExperiment:
         outpath : str or Path
         first_stimuli : list[str]
         second_stimuli : list[str]
-        trigger_duration: float
         behavioural_task : False | "first" |  "second" | "catch"
         wait_after_response : float 
             determines the wait time before the next trial after a keypress. Only used if behavioural task is not False.
@@ -73,7 +71,6 @@ class ExpectationExperiment:
         self.n_events_per_block = n_events_per_block
         self.n_repeats_per_block = n_repeats_per_block
         self.break_sound_path = break_sound_path
-        self.trigger_duration = trigger_duration
         self.countdown_timer = CountdownTimer()
         self.rng_IPI = np.random.Generator(np.random.PCG64())
         self.rng_interval = rng_interval
@@ -167,13 +164,7 @@ class ExpectationExperiment:
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
-            
-        self.countdown_timer.reset(self.trigger_duration)
-            
-        while self.countdown_timer.getTime() > 0:
-            pass
-            
-        setParallelData(0)
+        
 
     def calculate_duration(self):
         """
@@ -199,7 +190,7 @@ class ExpectationExperiment:
                     total_time += self.max_response_time
                 
                 # trigger durations
-                total_time += 3 * self.trigger_duration  # for first and second stimuli and response
+                total_time += 3 * 0.005  # for first and second stimuli and response
             
         return total_time
 

@@ -10,7 +10,7 @@ from psychopy.data import QuestPlusHandler, QuestHandler
 from psychopy.core import wait
 
 from utils.responses import KeyboardListener
-from utils.triggers import setParallelData
+from utils.triggers_nidaqmx import setParallelData
 
 import os
 if os.name != "posix":
@@ -304,7 +304,6 @@ class Experiment:
 
             stim_time = time.perf_counter() - self.start_time
             
-
             self.log_event(
                 **trial,
                 event_time=stim_time,
@@ -398,8 +397,6 @@ class Experiment:
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
-        core.wait(self.trigger_duration, hogCPUperiod=min(self.trigger_duration, 0.01))
-        setParallelData(0)
     
     def correct_or_incorrect(self, key, event_type):
         if key in self.keys_target[event_type.split('/')[-1]]:
