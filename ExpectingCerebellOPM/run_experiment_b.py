@@ -304,40 +304,31 @@ def get_participant_info():
 
 
 def create_trigger_mapping():
-    response_bit = 1
-    second_bit = 2
-    expected_bit = 4
-    repetition = 8
 
-    index_bit = 16
-    middle_bit = 32
-
-    break_bit_start = 64
-    break_bit_end = 128
 
     trigger_mapping = {
         # FIRST STIMULI
-        "first/index": index_bit,
-        "first/middle": middle_bit,
+        "first/index": [1, 1, 0, 0, 0, 0, 0, 0],  # repeated to ensure pulse duration
+        "first/middle": [1, 0, 1, 0, 0, 0, 0, 0],  # repeated to ensure pulse duration
         
         # SECOND STIMULI
         # index finger
-        "second/index/expected/repeated": second_bit + index_bit + expected_bit + repetition,
-        "second/index/expected/unrepeated": second_bit + index_bit + expected_bit,
-        "second/index/unexpected/repeated": second_bit + index_bit  + repetition,
-        "second/index/unexpected/unrepeated": second_bit + index_bit,
+        "second/index/expected/repeated": [1, 1, 0, 0, 1, 0, 0, 0],
+        "second/index/expected/unrepeated": [1, 1, 0, 0, 0, 0, 0, 0],
+        "second/index/unexpected/repeated": [1, 0, 1, 0, 1, 0, 0, 0],
+        "second/index/unexpected/unrepeated": [1, 0, 1, 0, 0, 0, 0, 0],
         
         # middle finger
-        "second/middle/expected/repeated": second_bit + middle_bit + expected_bit + repetition,
-        "second/middle/expected/unrepeated": second_bit + middle_bit + expected_bit,
-        "second/middle/unexpected/repeated": second_bit + middle_bit  + repetition,
-        "second/middle/unexpected/unrepeated": second_bit + middle_bit,
+        "second/middle/expected/repeated": [1, 0, 1, 0, 1, 0, 0, 0],
+        "second/middle/expected/unrepeated": [1, 0, 1, 0, 0, 0, 0, 0],
+        "second/middle/unexpected/repeated": [1, 0, 1, 0, 1, 0, 0, 0],
+        "second/middle/unexpected/unrepeated": [1, 0, 1, 0, 0, 0, 0, 0],
 
         # RESPONSE
-        "response": response_bit,
+        "response": [0, 0, 0, 1, 0, 0, 0, 0],
 
-        "break/start": break_bit_start,
-        "break/end": break_bit_end
+        "break/start": [0, 0, 0, 0, 0, 1, 0, 0],
+        "break/end": [0, 0, 0, 0, 0, 0, 1, 0]
     }
 
     return trigger_mapping
