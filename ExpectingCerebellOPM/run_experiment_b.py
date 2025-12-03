@@ -12,7 +12,7 @@ from typing import Union
 import numpy as np
 import copy
 
-from utils.triggers_nidaqmx import setParallelData
+from utils.triggers import setParallelData
 from utils.responses import KeyboardListener
 
 from psychopy.clock import CountdownTimer
@@ -303,7 +303,6 @@ def get_participant_info():
 
 
 def create_trigger_mapping():
-
 
     trigger_mapping = {
         # FIRST STIMULI
