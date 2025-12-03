@@ -30,21 +30,14 @@ def _init_task():
         print(f"NI-DAQmx trigger task initialised on {CHANNEL}.")
 
 
-def setParallelData(bitlist):
+def setParallelData(code):
     """
     Send an 8-bit trigger vector via NI-DAQmx.
     bitlist example: [1,0,0,0,0,0,0,0]
     """
     _init_task()
 
-    # Ensure values are bool (NI expects True/False)
-    values = [bool(b) for b in bitlist]
-
-    # Rising edge
-    # convert to number
-    value = sum(1 << i for i, bit in enumerate(values) if bit)
-
-    _trigger_task.write(value, auto_start=True)
+    _trigger_task.write(code, auto_start=True)
     time.sleep(PULSE_WIDTH)
 
     # Back to zero
