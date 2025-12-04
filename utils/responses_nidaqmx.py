@@ -15,7 +15,7 @@ class NIResponsePad:
     def __init__(
         self,
         device: str = "Dev1",
-        port: str = "port0",
+        port: str = "port6",
         lines: tuple = ("line0", "line1", "line2", "line3"),
         mapping: Dict[int, str] = None,
         poll_interval_s: float = 0.0005,
@@ -47,6 +47,7 @@ class NIResponsePad:
         self._last_press_label: Optional[str] = None
         self._last_press_time: Optional[float] = None
         self._last_line_time = {i: 0.0 for i in range(len(lines))}
+        print(f"NIResponsePad initialized on {self.device}/{self.port} lines {self.lines}")
 
     def _make_line_string(self) -> str:
         return ",".join([f"{self.device}/{self.port}/{ln}" for ln in self.lines])
