@@ -8,8 +8,8 @@ from nidaqmx.constants import LineGrouping
 
 class NIResponsePad:
     """
-    Listener for a 4-button response pad on NI PCIe-6509.
-    Uses integer bitmask decoding (required for 6509).
+    Listener for a multi-line response pad on NI PCIe-6509.
+    Supports edge detection and debounce for multiple successive presses.
     """
 
     def __init__(
@@ -29,67 +29,58 @@ class NIResponsePad:
         self.debounce_s = debounce_ms / 1000.0
         self.timestamp_responses = timestamp_responses
 
-        # Default mapping 0→"0", 1→"1", …
+        # Default mapping: 0 → "0", 1 → "1", etc.
         self.mapping = mapping or {i: str(i) for i in range(num_lines)}
 
         self.active = False
-        self._task = None
-        self._thread = None
+        self._task: Optional[nidaqmx.Task] = None
+        self._thread: Optional[threading.Thread] = None
 
         self._lock = threading.Lock()
         self._last_press_label: Optional[str] = None
         self._last_press_time: Optional[float] = None
-
         self._last_line_time = {i: 0.0 for i in range(num_lines)}
+        self._last_bits = [0] * num_lines  # track previous line states
 
         print(f"NIResponsePad initialized on {self.device}/{self.port} with {self.num_lines} lines")
 
     # ---------------------------------------------------------
-
     def _make_line_string(self):
-        """
-        Example: "Dev1/port6/line0:3"
-        """
+        # e.g., "Dev1/port6/line0:3"
         return f"{self.device}/{self.port}/line0:{self.num_lines - 1}"
 
     # ---------------------------------------------------------
-
     def _poll_loop(self):
         read = self._task.read
 
         while self.active:
             try:
-                raw_val = read()   # integer bitmask on PCIe-6509
+                raw_val = read()  # integer bitmask on PCIe-6509
             except Exception:
                 break
 
             t = time.perf_counter()
-
-            # Convert integer → list of booleans
             bits = [(raw_val >> i) & 1 for i in range(self.num_lines)]
 
             for idx, bit in enumerate(bits):
-                if bit:
+                # Rising edge detection
+                if bit and self._last_bits[idx] == 0:
                     if (t - self._last_line_time[idx]) >= self.debounce_s:
                         label = self.mapping[idx]
-
                         with self._lock:
                             self._last_press_label = label
                             self._last_press_time = t
-
                         self._last_line_time[idx] = t
-                        break
 
+            self._last_bits = bits
             time.sleep(self.poll_interval_s)
 
     # ---------------------------------------------------------
-
     def start_listener(self):
         if self._task is not None:
             return
 
         line_string = self._make_line_string()
-
         self._task = nidaqmx.Task()
         self._task.di_channels.add_di_chan(
             line_string,
@@ -101,7 +92,6 @@ class NIResponsePad:
         self._thread.start()
 
     # ---------------------------------------------------------
-
     def stop_listener(self):
         self.active = False
 
@@ -117,18 +107,20 @@ class NIResponsePad:
             self._task = None
 
     # ---------------------------------------------------------
-
     def get_response(self):
+        """
+        Returns:
+          - If timestamp_responses is False: label string or None
+          - If True: (label, timestamp) or None
+        """
         with self._lock:
             label = self._last_press_label
-            t = self._last_press_time
+            ts = self._last_press_time
             self._last_press_label = None
             self._last_press_time = None
 
         if label is None:
             return None
-
         if self.timestamp_responses:
-            return (label, t)
-
+            return (label, ts)
         return label
