@@ -373,39 +373,40 @@ class Experiment:
                 self.QUEST_reset()
             if "target" in event_type:
                 self.listener.reset_response()
-                while (time.perf_counter() - self.start_time) < target_time:
-                    # check for key press during target window
-                    if self.listener.active and not response_given:
-                        
-                        rt = "NA"
-                        key = self.listener.get_response()
-                        if key:
-                            correct, response_trigger = self.correct_or_incorrect(key, event_type)
-                            time_of_response = (time.perf_counter() - self.start_time)
+                response_given = False
+            
+            while (time.perf_counter() - self.start_time) < target_time:
+                # check for key press during target window
+                if "target" in event_type and not response_given:
+                    rt = "NA"
+                    key = self.listener.get_response()
+                    if key:
+                        correct, response_trigger = self.correct_or_incorrect(key, event_type)
+                        time_of_response = (time.perf_counter() - self.start_time)
 
-                            print(f"Response: {key}, Correct: {correct}")
-                            if self.send_trigger:
-                                self.raise_and_lower_trigger(response_trigger)
+                        print(f"Response: {key}, Correct: {correct}")
+                        if self.send_trigger:
+                            self.raise_and_lower_trigger(response_trigger)
 
-                            rt = time_of_response - stim_time
-                            response_given = True
+                        rt = time_of_response - stim_time
+                        response_given = True
                             
-                            # overwrite event type for logging
-                            trial["event_type"] = "response"
-                            if log_file:
-                                self.log_event(
-                                    **trial,
-                                    event_time=time_of_response,
-                                    intensity="NA",
-                                    trigger=response_trigger,
-                                    correct=correct,
-                                    rt=rt,
-                                    log_file=log_file
-                                )
+                        # overwrite event type for logging
+                        trial["event_type"] = "response"
+                        if log_file:
+                            self.log_event(
+                                **trial,
+                                event_time=time_of_response,
+                                intensity="NA",
+                                trigger=response_trigger,
+                                correct=correct,
+                                rt=rt,
+                                log_file=log_file
+                            )
                             
 
-                            self.QUEST.addResponse(correct, intensity=intensity)
-                            self.update_weak_intensity()
+                        self.QUEST.addResponse(correct, intensity=intensity)
+                        self.update_weak_intensity()
 
             if ("target" in event_type) and (not response_given):
                 print("No response given")
