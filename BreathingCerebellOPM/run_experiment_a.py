@@ -99,9 +99,7 @@ class MiddleIndexTactileDiscriminationTask:
         QUEST_target : float, optional
             Target proportion of correct responses for QUEST to adjust intensity.
             Defaults to 0.75.
-        
-        trigger_duration : float, optional
-            Duration of the trigger signal, in seconds. Defaults to 0.001.
+    
         
         reset_QUEST : int or bool, optional
             Determines if and how frequently the QUEST algorithm should reset.
@@ -123,7 +121,6 @@ class MiddleIndexTactileDiscriminationTask:
         self.order = order
         self.trigger_mapping = trigger_mapping
         self.prop_middle_index = prop_middle_index
-        self.trigger_duration = trigger_duration
         self.send_trigger = send_trigger
         self.SGC_connectors = SGC_connectors
 
