@@ -250,6 +250,7 @@ class ExpectationExperiment:
                         correct = response in self.response_keys[event["second"]]
                         self.raise_and_lower_trigger(self.trigger_mapping["response"])
                     else:
+                        self.listener.reset_response()  # <- clear any lingering press from previous trial
                         while self.countdown_timer.getTime() > 0:
                             candidate = self.listener.get_response()
                             if candidate:

@@ -124,3 +124,9 @@ class NIResponsePad:
         if self.timestamp_responses:
             return (label, ts)
         return label
+    
+    def reset_response(self):
+        """Clears any stored response without returning it."""
+        with self._lock:
+            self._last_press_label = None
+            self._last_press_time = None
