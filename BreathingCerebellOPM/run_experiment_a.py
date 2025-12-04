@@ -141,7 +141,7 @@ class Experiment:
             },
             poll_interval_s=0.0005,
             debounce_ms=50,
-            timestamp_responses=True
+            timestamp_responses=False
         )
 
         self.keys_target = {
