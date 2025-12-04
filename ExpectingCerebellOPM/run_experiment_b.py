@@ -221,7 +221,7 @@ class ExpectationExperiment:
         self.check_in_on_participant("Starting new block. Check in on the participant.")
     
     def run(self):
-        # start the listener for keyboard inputs
+        # Start the listener once at the start
         self.listener.start_listener()
         self.start_time = time.perf_counter()
 
@@ -233,7 +233,7 @@ class ExpectationExperiment:
                 for i, event in enumerate(block):
                     print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}")
                     response, correct, response_time = None, None, None
-    
+
                     time_first = time.perf_counter()
                     self.deliver_stimulus(event["first"])
                     self.raise_and_lower_trigger(event["trigger_first"])
@@ -242,39 +242,34 @@ class ExpectationExperiment:
                     self.deliver_stimulus(event["second"])
                     self.raise_and_lower_trigger(event["trigger_second"])
 
-                    
-                    self.listener.active = True
-
+                    # Only poll responses during the response window
                     self.countdown_timer.reset(self.max_response_time)
-                    
-                    if self.random_responses: # for testing purposes only
+
+                    if self.random_responses:  # for testing only
                         response = np.random.choice(["1", "2"])
                         correct = response in self.response_keys[event["second"]]
                         self.raise_and_lower_trigger(self.trigger_mapping["response"])
-                        self.listener.active = False
-                        
                     else:
                         while self.countdown_timer.getTime() > 0:
-                            response = self.listener.get_response()
-                            if response:
-                                self.raise_and_lower_trigger(self.trigger_mapping["response"])
-                                self.listener.active = False
-                                
-                                # time
+                            candidate = self.listener.get_response()
+                            if candidate:
+                                response = candidate
                                 response_time = time.perf_counter() - time_second
-
                                 correct = response in self.response_keys[event["second"]]
-                                print(f" Response: {response} | Correct: {correct} | RT: {response_time:.3f} seconds")
-                                    
+                                self.raise_and_lower_trigger(self.trigger_mapping["response"])
+                                print(f" Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
                                 break
-                        
-                    self.listener.active = False
 
-                    self.log_event(i_block, event["first"], time_first, event["second"], time_second, event["repeated"], event["expected"], response, response_time, correct, log_file)
+                    # Log the event
+                    self.log_event(
+                        i_block, event["first"], time_first, event["second"],
+                        time_second, event["repeated"], event["expected"],
+                        response, response_time, correct, log_file
+                    )
+
+                    # Wait for the inter-pair interval
                     wait(event["IPI"])
-                    
 
-    
         self.listener.stop_listener()
         print("Experiment finished.")
 
