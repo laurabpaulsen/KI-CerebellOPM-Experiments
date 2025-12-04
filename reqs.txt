@@ -1,0 +1,8 @@
+packaging
+six
+numpy
+pandas
+json_tricks
+pynput
+pyserial
+nidaqmx

@@ -11,6 +11,7 @@ from collections import Counter
 import random
 from psychopy.core import wait
 from psychopy.data import QuestPlusHandler, QuestHandler
+from psychopy.clock import CountdownTimer
 import time
 
 import numpy as np
