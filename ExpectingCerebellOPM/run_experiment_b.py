@@ -13,13 +13,15 @@ import numpy as np
 import copy
 
 from utils.triggers_nidaqmx import setParallelData
-from utils.responses import KeyboardListener
+from utils.responses_nidaqmx import NIResponsePad
+#from utils.responses import KeyboardListener
 
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
 from collections import Counter
 from utils.params import connectors
+
 
 
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
@@ -78,13 +80,31 @@ class ExpectationExperiment:
         self.behavioural_task = behavioural_task
         self.send_trigger = send_trigger
         self.random_responses = random_responses
-        if self.behavioural_task:
-            # for response handling 
-            self.listener = KeyboardListener()
-            self.response_keys = {
-                self.second_stimuli[0]: ['2', 'y'],
-                self.second_stimuli[1]: ['1', 'b']
-            }
+
+        # Map physical lines to response labels used by the experiment.
+        # Adjust mapping dict so line indices match the pad wiring.
+        line_to_label = {
+            0: "b", # blue
+            1: "y", # yellow
+            2: "g", # green
+            3: "r", # red
+        }
+
+        self.listener = NIResponsePad(
+            device="Dev1",
+            port="port6",
+            num_lines=4,
+            mapping=line_to_label,
+            poll_interval_s=0.0005,
+            debounce_ms=30,
+            timestamp_responses=False,
+        )
+
+        # Keep the existing logic: which labels count as correct for each second stimulus
+        self.response_keys = {
+            self.second_stimuli[0]: ["2", "y"],
+            self.second_stimuli[1]: ["1", "b"]
+        }
             
 
         self.prep_events()
