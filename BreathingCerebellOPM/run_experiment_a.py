@@ -48,27 +48,29 @@ OUTPUT_PATH.mkdir(exist_ok=True)
 
 
     
-class Experiment:
+class MiddleIndexTactileDiscriminationTask:
     LOG_HEADER = "time,block,ISI,intensity,event_type,trigger,n_in_block,correct,QUEST_reset,rt\n"
 
     def __init__(
             self, 
             trigger_mapping: dict,
             ISIs: List[float],
-            order: List[int] = None,
-            n_sequences: int = 10, 
-            prop_target1_target2: List[float] = [0.5, 0.5], 
-            target_1: str = "left",
-            target_2: str = "right",
+            order: List[int],
+            n_sequences: int = 10,
+            prop_middle_index: List[float] = [0.5, 0.5],
             intensities: dict = {"salient": 6.0, "weak": 2.0},
-            trigger_duration: float = 0.005,
-            send_trigger: bool = False,
-            QUEST_target: float = 0.60,
+            QUEST_target: float = 0.75,
             reset_QUEST: Union[int, bool] = False, # how many blocks before resetting QUEST
             QUEST_plus: bool = True,
+            send_trigger: bool = False,
             logfile: Path = Path("data.csv"),
-            break_sound_path: Union[Path, str, None] = None,
-            ):
+            SGC_connectors = None,
+            break_sound_path=None,
+            target_1="middle",
+            target_2="index",
+        ):
+        
+    
         """
         Initializes the parameters and attributes for the experimental paradigm.
 
@@ -120,9 +122,10 @@ class Experiment:
         self.n_sequences = n_sequences
         self.order = order
         self.trigger_mapping = trigger_mapping
-        self.prop_target1_target2 = prop_target1_target2
+        self.prop_middle_index = prop_middle_index
         self.trigger_duration = trigger_duration
         self.send_trigger = send_trigger
+        self.SGC_connectors = SGC_connectors
 
         self.countdown_timer = CountdownTimer() 
         self.events = []
@@ -433,9 +436,6 @@ class Experiment:
         return respiratory_rate
 
 
-    def raise_and_lower_trigger(self, trigger):
-        pass
-    
     def correct_or_incorrect(self, key, event_type):
         if key in self.keys_target[event_type.split('/')[-1]]:
             return 1, self.trigger_mapping[f"response/{event_type.split('/')[-1]}/correct"]
@@ -507,6 +507,75 @@ class Experiment:
                 )
 
         self.listener.stop_listener()  # Stop the keyboard listener
+
+
+    def deliver_stimulus(self, event_type):
+        if self.SGC_connectors:
+            if "salient" in event_type:  # send to both fingers
+                for connector in self.SGC_connectors.values():
+                    connector.send_pulse()
+            elif self.SGC_connectors and "target" in event_type: # send to the finger specified in the event type
+                self.SGC_connectors[event_type.split("/")[-1]].send_pulse()
+
+    def prepare_for_next_stimulus(self, event_type, next_event_type):
+        if self.SGC_connectors:
+            # after sending the trigger for the weak target stimulation change the intensity to the salient intensity
+            if "target" in event_type: 
+                self.SGC_connectors[event_type.split("/")[-1]].change_intensity(self.intensities["salient"])
+
+            # check if next stimuli is weak, then lower based on which!
+            if "target" in next_event_type:
+                self.SGC_connectors[next_event_type.split("/")[-1]].change_intensity(self.intensities["weak"])
+
+    def trial_block(self, ISI=1.5, n_sequences=None):
+        n_sequences = n_sequences if n_sequences else self.n_sequences
+        # Generate the sequence of events for the trial block
+        trial_sequence_events = self.event_sequence(n_sequences=n_sequences, ISI=ISI, block_idx="trial", reset_QUEST=None)
+        
+        self.listener.start_listener()  # Start the keyboard listener
+        self.loop_over_events(trial_sequence_events, log_file=None)
+        self.listener.stop_listener()  # Stop the keyboard listener
+
+    def raise_and_lower_trigger(self, trigger):
+        setParallelData(trigger)
+
+def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
+    """
+    Generate a sequence of block indices and 'break' markers.
+
+    Parameters
+    ----------
+    ISIs : list of float
+        The list of ISIs defining block types.
+    n_repeats : int
+        How many times to repeat the full transition set.
+
+    Returns
+    -------
+    list
+        A list containing block indices and "break" entries.
+    """
+    block_types = list(range(len(ISIs)))
+    wanted_transitions = [(a, b) for a in block_types for b in block_types if a != b]
+
+    order = []
+    available_start_blocks = block_types.copy()
+
+    for i in range(n_repeats):
+        if not available_start_blocks:
+            available_start_blocks = block_types.copy()
+        start_block = np.random.choice(available_start_blocks)
+        available_start_blocks.remove(start_block)
+
+        tmp_order = build_block_order(wanted_transitions, start_blocks=[start_block])
+        order.extend(tmp_order)
+        if i != n_repeats - 1:
+            order.append("break")
+
+    return order
+
+
+
 
 # UTILITIES
 # -------------
@@ -628,109 +697,6 @@ def get_participant_info():
         exit()
 
     return pid, {"salient": salient, "weak": weak}
-
-
-class MiddleIndexTactileDiscriminationTask(Experiment):
-    def __init__(
-            self, 
-            trigger_mapping: dict,
-            ISIs: List[float],
-            order: List[int],
-            n_sequences: int = 10,
-            prop_middle_index: List[float] = [0.5, 0.5],
-            intensities: dict = {"salient": 6.0, "weak": 2.0},
-            QUEST_target: float = 0.75,
-            reset_QUEST: Union[int, bool] = False, # how many blocks before resetting QUEST
-            QUEST_plus: bool = True,
-            send_trigger: bool = False,
-            logfile: Path = Path("data.csv"),
-            SGC_connectors = None,
-            break_sound_path=None
-            ):
-        
-        super().__init__(
-            trigger_mapping = trigger_mapping,
-            ISIs = ISIs,
-            order = order,
-            n_sequences = n_sequences,
-            prop_target1_target2 = prop_middle_index,
-            target_1="middle",
-            target_2="index",
-            intensities = intensities,
-            QUEST_target = QUEST_target,
-            reset_QUEST = reset_QUEST,
-            QUEST_plus = QUEST_plus,
-            send_trigger = send_trigger,
-            logfile = logfile,
-            break_sound_path = break_sound_path
-        )
-        self.SGC_connectors = SGC_connectors
-    
-    def deliver_stimulus(self, event_type):
-        if self.SGC_connectors:
-            if "salient" in event_type:  # send to both fingers
-                for connector in self.SGC_connectors.values():
-                    connector.send_pulse()
-            elif self.SGC_connectors and "target" in event_type: # send to the finger specified in the event type
-                self.SGC_connectors[event_type.split("/")[-1]].send_pulse()
-
-    def prepare_for_next_stimulus(self, event_type, next_event_type):
-        if self.SGC_connectors:
-            # after sending the trigger for the weak target stimulation change the intensity to the salient intensity
-            if "target" in event_type: 
-                self.SGC_connectors[event_type.split("/")[-1]].change_intensity(self.intensities["salient"])
-
-            # check if next stimuli is weak, then lower based on which!
-            if "target" in next_event_type:
-                self.SGC_connectors[next_event_type.split("/")[-1]].change_intensity(self.intensities["weak"])
-
-    def trial_block(self, ISI=1.5, n_sequences=None):
-        n_sequences = n_sequences if n_sequences else self.n_sequences
-        # Generate the sequence of events for the trial block
-        trial_sequence_events = self.event_sequence(n_sequences=n_sequences, ISI=ISI, block_idx="trial", reset_QUEST=None)
-        
-        self.listener.start_listener()  # Start the keyboard listener
-        self.loop_over_events(trial_sequence_events, log_file=None)
-        self.listener.stop_listener()  # Stop the keyboard listener
-
-    def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
-
-def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
-    """
-    Generate a sequence of block indices and 'break' markers.
-
-    Parameters
-    ----------
-    ISIs : list of float
-        The list of ISIs defining block types.
-    n_repeats : int
-        How many times to repeat the full transition set.
-
-    Returns
-    -------
-    list
-        A list containing block indices and "break" entries.
-    """
-    block_types = list(range(len(ISIs)))
-    wanted_transitions = [(a, b) for a in block_types for b in block_types if a != b]
-
-    order = []
-    available_start_blocks = block_types.copy()
-
-    for i in range(n_repeats):
-        if not available_start_blocks:
-            available_start_blocks = block_types.copy()
-        start_block = np.random.choice(available_start_blocks)
-        available_start_blocks.remove(start_block)
-
-        tmp_order = build_block_order(wanted_transitions, start_blocks=[start_block])
-        order.extend(tmp_order)
-        if i != n_repeats - 1:
-            order.append("break")
-
-    return order
-
 
 
 if __name__ == "__main__":
