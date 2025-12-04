@@ -81,6 +81,8 @@ class NIResponsePad:
 
             if not isinstance(vals, list) or len(vals) != self.num_lines:
                 print("NIResponsePad ERROR: read() did not return expected list.")
+                print("DEBUG read() output:", vals, type(vals))
+
                 break
 
             tnow = time.perf_counter()
