@@ -14,7 +14,6 @@ from psychopy.data import QuestPlusHandler, QuestHandler
 import time
 
 import numpy as np
-from np.random import choice
 
 from utils.params import connectors 
 from utils.triggers_nidaqmx import create_trigger_mapping, setParallelData
@@ -209,7 +208,7 @@ class Experiment:
                     reset=False
             
             event_counter_in_block += 1
-            event_type = choice([self.target_1, self.target_2], 1, p=self.prop_target1_target2)
+            event_type = np.random.choice([self.target_1, self.target_2], 1, p=self.prop_target1_target2)
             
 
             events.append({"ISI": ISI, "event_type": f"target/{event_type[0]}", "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": False})
@@ -722,7 +721,7 @@ def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
     for i in range(n_repeats):
         if not available_start_blocks:
             available_start_blocks = block_types.copy()
-        start_block = random.choice(available_start_blocks)
+        start_block = np.random.choice(available_start_blocks)
         available_start_blocks.remove(start_block)
 
         tmp_order = build_block_order(wanted_transitions, start_blocks=[start_block])
