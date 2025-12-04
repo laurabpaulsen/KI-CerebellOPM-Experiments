@@ -353,9 +353,6 @@ class Experiment:
             
             print(f"Event: {event_type}, intensity: {intensity}")
 
-            # Check if this is a target event
-            self.listener.active = "target" in event_type
-
             target_time = stim_time + trial["ISI"]
             response_given = False # to keep track of whether a response has been given
 
