@@ -57,7 +57,7 @@ class MiddleIndexTactileDiscriminationTask:
             ISIs: List[float],
             order: List[int],
             n_sequences: int = 10,
-            prop_middle_index: List[float] = [0.5, 0.5],
+            prop_target1_target2: List[float] = [0.5, 0.5],
             intensities: dict = {"salient": 6.0, "weak": 2.0},
             QUEST_target: float = 0.75,
             reset_QUEST: Union[int, bool] = False, # how many blocks before resetting QUEST
@@ -120,7 +120,7 @@ class MiddleIndexTactileDiscriminationTask:
         self.n_sequences = n_sequences
         self.order = order
         self.trigger_mapping = trigger_mapping
-        self.prop_middle_index = prop_middle_index
+        self.prop_target1_target2 = prop_target1_target2
         self.send_trigger = send_trigger
         self.SGC_connectors = SGC_connectors
 
@@ -735,7 +735,7 @@ if __name__ == "__main__":
         send_trigger=False, # after running the trial block it is set to True
         logfile = logfile,
         SGC_connectors=connectors,
-        prop_middle_index=[1/2, 1/2],
+        prop_target1_target2=[1/2, 1/2],
         break_sound_path=Path("utils/sound.wav")
     )
 
