@@ -4,7 +4,7 @@ Discriminating weak index and middle finger targets following three salient rhyt
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parents[1]))
+sys.path.append(str(Path(__file__).parent))
 
 from typing import Union, List, Tuple, Optional
 from collections import Counter
@@ -23,16 +23,6 @@ from utils.responses_nidaqmx import NIResponsePad
 
 
 
-import os
-if os.name != "posix":
-    from winsound import PlaySound, SND_FILENAME
-else:
-    SND_FILENAME = None
-    def PlaySound(*args, **kwargs):
-        pass
-
-
-
 # CONFIG
 # -------------------
 N_REPEATS_BLOCKS = 4 #4
@@ -42,8 +32,8 @@ ISIS = [1.29, 1.44, 1.57, 1.71]
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
 STIM_DURATION = 100  # 0.1 ms
 
-OUTPUT_PATH = Path(__file__).parent / "output"
-OUTPUT_PATH.mkdir(exist_ok=True)
+OUTPUT_PATH = Path(__file__).parent / "output" / "BreathingCerebellOPM"
+OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
 
 TARGET_1 = "index"
@@ -171,11 +161,6 @@ class MiddleIndexTactileDiscriminationTask:
 
         self.start_time = time.perf_counter()
 
-    def play_break_sound(self):
-        # Play a sound to indicate a break
-        if self.break_sound_path:
-            PlaySound(str(self.break_sound_path), SND_FILENAME)
-
     def setup_experiment(self):
         logged_block_idx = 0
         for block_idx, block in enumerate(self.order):
@@ -295,7 +280,6 @@ class MiddleIndexTactileDiscriminationTask:
                     log_file=log_file
                 )
 
-        #self.play_break_sound()
         input(message + " Press Enter to continue...")
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/end"])

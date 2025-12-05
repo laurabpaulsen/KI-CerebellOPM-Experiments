@@ -1,4 +1,8 @@
 import time
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parents[1]))
+
 from utils.triggers_nidaqmx import setParallelData, create_trigger_mapping
 
 print("Loading trigger mapping...")

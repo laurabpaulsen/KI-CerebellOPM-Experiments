@@ -1,6 +1,6 @@
 import threading
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import nidaqmx
 from nidaqmx.constants import LineGrouping
@@ -17,7 +17,7 @@ class NIResponsePad:
         device: str = "Dev1",
         port: str = "port6",
         num_lines: int = 4,
-        mapping: Dict[int, str] = None,
+        mapping: Union[Dict[int, str], None] = None,
         poll_interval_s: float = 0.0005,
         debounce_ms: int = 30,
         timestamp_responses: bool = False,
@@ -51,6 +51,7 @@ class NIResponsePad:
 
     # ---------------------------------------------------------
     def _poll_loop(self):
+        # Cache the read method for performance
         read = self._task.read
 
         while self.active:

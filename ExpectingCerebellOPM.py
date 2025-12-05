@@ -4,7 +4,7 @@
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parents[1]))
+sys.path.append(str(Path(__file__).parent))
 
 
 import time
@@ -27,6 +27,12 @@ STIM_DURATION = 100  # 0.1 ms
 
 BUTTONS_INDEX = ["1", "b"]  # blue
 BUTTONS_MIDDLE = ["2", "y"]  # yellow
+
+
+OUTPATH = Path(__file__).parent / "output" / "ExpectingCerebellOPM"
+
+if not OUTPATH.exists():
+    OUTPATH.mkdir(parents=True, exist_ok=True)
 
 class ExpectationExperiment:
     LOGHEADER = "block,stim_site_first,time_first,stim_site_second,time_second,repeated,expected,response,RT,correct\n"
@@ -362,10 +368,6 @@ def create_trigger_mapping():
 
 if __name__ in "__main__":
 
-    outpath = Path(__file__).parent / "output"
-
-    if not outpath.exists():
-        outpath.mkdir(parents=True)
     
     participant_id, intensity = get_participant_info()
 
@@ -390,7 +392,7 @@ if __name__ in "__main__":
         n_repeats_per_block = 2,
         max_response_time=2, # seconds
         #random_responses=True,  # REMEMBER TO REMOVE THIS IN REAL EXPERIMENTS
-        outpath=outpath / f"{participant_id}_{intensity}.csv",
+        outpath=OUTPATH / f"{participant_id}_{intensity}.csv",
         break_sound_path=break_sound_path
     )
 
