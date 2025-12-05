@@ -325,7 +325,8 @@ class MiddleIndexTactileDiscriminationTask:
             
             # deliver pulse
             self.deliver_stimulus(event_type)
-            print(f"Progress: {i+1}/{len(events)}, Breaks: {n_breaks_done}/{total_breaks}")
+            if i % 10 == 0:
+                print(f"Progress: {i+1}/{len(events)}, Breaks: {n_breaks_done}/{total_breaks}")
 
             stim_time = time.perf_counter() - self.start_time
             
