@@ -1,6 +1,9 @@
 import os
 from .SGC_connector import SGCConnector, SGCFakeConnector
 from pathlib import Path
+
+path = Path(__file__).parents[1] 
+
 # check whether it is running on mac or windows
 
 if os.name == "posix":
@@ -14,8 +17,8 @@ else:
 
 
 connectors = {
-        "middle":  SGCConnector(port=middle_connector_port, intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
+        "middle":  SGCConnector(port=middle_connector_port, intensity_codes_path=path / "intensity_code.csv", start_intensity=1),
         #"index": SGCConnector(port=index_connector_port, intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
         #"middle": SGCFakeConnector(intensity_codes_path=Path("intensity_code.csv"), start_intensity=1),
-        "index": SGCFakeConnector(intensity_codes_path=Path("intensity_code.csv"), start_intensity=1)
+        "index": SGCFakeConnector(intensity_codes_path=path / "intensity_code.csv", start_intensity=1)
     }
