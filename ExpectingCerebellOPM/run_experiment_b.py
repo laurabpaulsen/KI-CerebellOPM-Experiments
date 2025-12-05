@@ -22,10 +22,11 @@ from psychopy.core import wait
 from collections import Counter
 from utils.params import connectors
 
-
-
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
 STIM_DURATION = 100  # 0.1 ms
+
+BUTTONS_INDEX = ["1", "b"]  # blue
+BUTTONS_MIDDLE = ["2", "y"]  # yellow
 
 class ExpectationExperiment:
     LOGHEADER = "block,stim_site_first,time_first,stim_site_second,time_second,repeated,expected,response,RT,correct\n"
@@ -45,6 +46,10 @@ class ExpectationExperiment:
         send_trigger: bool = True,
         break_sound_path: Union[str, Path] = None,
         random_responses: bool = False,
+        response_keys: dict = {
+            "index": BUTTONS_INDEX,
+            "middle": BUTTONS_MIDDLE
+        }
         ):
         """
         
@@ -101,10 +106,7 @@ class ExpectationExperiment:
         )
 
         # Keep the existing logic: which labels count as correct for each second stimulus
-        self.response_keys = {
-            self.second_stimuli[0]: ["2", "y"],
-            self.second_stimuli[1]: ["1", "b"]
-        }
+        self.response_keys = response_keys
             
 
         self.prep_events()
@@ -394,7 +396,5 @@ if __name__ in "__main__":
 
     duration = experiment.calculate_duration()
     print(f"Estimated duration: {duration/60} minutes")
-
-
     
     experiment.run()

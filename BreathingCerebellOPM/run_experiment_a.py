@@ -46,6 +46,11 @@ OUTPUT_PATH = Path(__file__).parent / "output"
 OUTPUT_PATH.mkdir(exist_ok=True)
 
 
+TARGET_1 = "index"
+TARGET_2 = "middle"
+TARGET_1_KEYS = ["1", "b"]
+TARGET_2_KEYS = ["2", "y"]
+
 
     
 class MiddleIndexTactileDiscriminationTask:
@@ -66,8 +71,10 @@ class MiddleIndexTactileDiscriminationTask:
             logfile: Path = Path("data.csv"),
             SGC_connectors = None,
             break_sound_path=None,
-            target_1="middle",
-            target_2="index",
+            target_1=TARGET_1,
+            target_1_keys=TARGET_1_KEYS,
+            target_2=TARGET_2,
+            target_2_keys=TARGET_2_KEYS,
         ):
         
     
@@ -125,7 +132,7 @@ class MiddleIndexTactileDiscriminationTask:
         self.SGC_connectors = SGC_connectors
 
         self.countdown_timer = CountdownTimer() 
-        self.events = []
+        self.events: List[Union[dict, str]] = []
         
         self.target_1 = target_1
         self.target_2 = target_2
@@ -145,8 +152,8 @@ class MiddleIndexTactileDiscriminationTask:
         )
 
         self.keys_target = {
-            target_1: ['2', 'y'],
-            target_2: ['1', 'b']
+            target_1: target_1_keys,
+            target_2: target_2_keys
         }
         
         
@@ -268,11 +275,6 @@ class MiddleIndexTactileDiscriminationTask:
 
         self.intensities["weak"] = round(proposed_intensity, 1)
 
-    def deliver_stimulus(self, event_type):
-        raise NotImplementedError("Subclasses should implement this!")
-
-    def prepare_for_next_stimulus(self, event_type, next_event_type):
-        raise NotImplementedError("Subclasses should implement this!")
     
     def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None):
         if self.send_trigger:
@@ -313,7 +315,7 @@ class MiddleIndexTactileDiscriminationTask:
                 )
         wait(2)
 
-    def loop_over_events(self, events: List[dict], log_file):
+    def loop_over_events(self, events: List[Union[dict, str]], log_file):
         """
         Loop over the events in the experiment
         """
@@ -375,7 +377,7 @@ class MiddleIndexTactileDiscriminationTask:
             while (time.perf_counter() - self.start_time) < target_time:
                 # check for key press during target window
                 if "target" in event_type and not response_given:
-                    rt = "NA"
+                    rt:Union[float, str] = "NA"
                     key = self.listener.get_response()
                     if key:
                         correct, response_trigger = self.correct_or_incorrect(key, event_type)
@@ -410,8 +412,6 @@ class MiddleIndexTactileDiscriminationTask:
                 # Update QUEST with the guessed outcome and advance intensity
                 self.QUEST.addResponse(np.random.choice([0, 1]), intensity=intensity)
                 self.update_weak_intensity()
-
-
 
 
     def log_event(self, event_time="NA", block="NA", ISI="NA", intensity="NA", event_type="NA", trigger="NA", n_in_block="NA", correct="NA", reset_QUEST="NA", rt="NA", log_file=None):
