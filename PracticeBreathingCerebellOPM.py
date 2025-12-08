@@ -15,7 +15,7 @@ from BreathingCerebellOPM import (
     ISIS, N_REPEATS_BLOCKS, 
     N_SEQUENCE_BLOCKS, RESET_QUEST,
     STIM_DURATION, VALID_INTENSITIES,
-    generate_block_order
+    generate_block_order, create_trigger_mapping
     )
 
 
