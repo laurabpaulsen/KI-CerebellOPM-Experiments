@@ -6,20 +6,9 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
-from typing import Union, List, Tuple, Optional
-from collections import Counter
-import random
-from psychopy.core import wait
-from psychopy.data import QuestPlusHandler, QuestHandler
-from psychopy.clock import CountdownTimer
-import time
-
-import numpy as np
 
 from utils.params import connectors 
-from utils.triggers_nidaqmx import create_trigger_mapping, setParallelData
 
-from utils.responses_nidaqmx import NIResponsePad
 
 from BreathingCerebellOPM import (
     MiddleIndexTactileDiscriminationTask,get_participant_info, 
