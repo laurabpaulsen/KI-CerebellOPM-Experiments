@@ -19,16 +19,15 @@ from utils.responses_nidaqmx import NIResponsePad
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
-from collections import Counter
+from BreathingCerebellOPM import (
+    VALID_INTENSITIES, STIM_DURATION, 
+    BUTTONS_INDEX, BUTTONS_MIDDLE
+    )
+
 from utils.params import connectors
 
-VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
-STIM_DURATION = 100  # 0.1 ms
 
-BUTTONS_INDEX = ["1", "b"]  # blue
-BUTTONS_MIDDLE = ["2", "y"]  # yellow
-
-
+MAX_RESPONSE_TIME = 4  # seconds
 OUTPATH = Path(__file__).parent / "output" / "ExpectingCerebellOPM"
 
 if not OUTPATH.exists():
@@ -38,20 +37,18 @@ class ExpectationExperiment:
     LOGHEADER = "block,stim_site_first,time_first,stim_site_second,time_second,repeated,expected,response,RT,correct\n"
     def __init__(
         self, ISI: float, 
-        trigger_mapping:dict, 
-        outpath: Union[str, Path], 
-        connectors: dict,
+        trigger_mapping:dict,
+        connectors: dict, 
+        outpath: Union[str, Path, None] = None, 
         prop_expected_unexpected:list = [0.75, 0.25], 
         first_stimuli = ["middle", "index"], 
         second_stimuli = ["middle", "index"], 
         behavioural_task:Union[bool, str] = "second",
-        max_response_time: float = 4,
+        max_response_time: float = MAX_RESPONSE_TIME,
         n_events_per_block = 100,
         rng_interval =  (1, 1.5),
         n_repeats_per_block = 2,
         send_trigger: bool = True,
-        break_sound_path: Union[str, Path] = None,
-        random_responses: bool = False,
         response_keys: dict = {
             "index": BUTTONS_INDEX,
             "middle": BUTTONS_MIDDLE
@@ -79,21 +76,18 @@ class ExpectationExperiment:
         self.SGC_connectors = connectors
         self.first_stimuli = first_stimuli
         self.second_stimuli = second_stimuli
-        self.outpath: Path = Path(outpath)
+        self.outpath = Path(outpath) if outpath else Path("output.csv")
         self.stimuli_pairs = self.define_stimuli_pairs()
         self.n_events_per_block = n_events_per_block
         self.n_repeats_per_block = n_repeats_per_block
-        self.break_sound_path = break_sound_path
         self.countdown_timer = CountdownTimer()
         self.rng_IPI = np.random.Generator(np.random.PCG64())
         self.rng_interval = rng_interval
         self.max_response_time = max_response_time  # in seconds
         self.behavioural_task = behavioural_task
         self.send_trigger = send_trigger
-        self.random_responses = random_responses
 
-        # Map physical lines to response labels used by the experiment.
-        # Adjust mapping dict so line indices match the pad wiring.
+        # Map lines to response labels used by the experiment.
         line_to_label = {
             0: "b", # blue
             1: "y", # yellow
@@ -111,12 +105,8 @@ class ExpectationExperiment:
             timestamp_responses=False,
         )
 
-        # Keep the existing logic: which labels count as correct for each second stimulus
         self.response_keys = response_keys
-            
-
         self.prep_events()
-
 
 
     def define_stimuli_pairs(self):
@@ -180,15 +170,10 @@ class ExpectationExperiment:
         # intermix the blocks globally
         np.random.shuffle(all_blocks)
 
-
         self.blocks = all_blocks
 
         print(f"Total number of events: {len(self.blocks)}")
     
-    #def play_break_sound(self):
-    #    # Play a sound to indicate a break
-    #    if self.break_sound_path:
-    #        PlaySound(str(self.break_sound_path), SND_FILENAME)
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
@@ -253,21 +238,16 @@ class ExpectationExperiment:
                     # Only poll responses during the response window
                     self.countdown_timer.reset(self.max_response_time)
 
-                    if self.random_responses:  # for testing only
-                        response = np.random.choice(["1", "2"])
-                        correct = response in self.response_keys[event["second"]]
-                        self.raise_and_lower_trigger(self.trigger_mapping["response"])
-                    else:
-                        self.listener.reset_response()  # <- clear any lingering press from previous trial
-                        while self.countdown_timer.getTime() > 0:
-                            candidate = self.listener.get_response()
-                            if candidate:
-                                response = candidate
-                                response_time = time.perf_counter() - time_second
-                                correct = response in self.response_keys[event["second"]]
-                                self.raise_and_lower_trigger(self.trigger_mapping["response"])
-                                print(f" Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
-                                break
+                    self.listener.reset_response()  # <- clear any lingering press from previous trial
+                    while self.countdown_timer.getTime() > 0:
+                        candidate = self.listener.get_response()
+                        if candidate:
+                            response = candidate
+                            response_time = time.perf_counter() - time_second
+                            correct = response in self.response_keys[event["second"]]
+                            self.raise_and_lower_trigger(self.trigger_mapping["response"])
+                            print(f" Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
+                            break
 
                     # Log the event
                     self.log_event(
@@ -276,7 +256,8 @@ class ExpectationExperiment:
                         response, response_time, correct, log_file
                     )
 
-                    # Wait for the inter-pair interval
+
+                    ## Wait for the inter-pair interval
                     wait(event["IPI"])
 
         self.listener.stop_listener()
@@ -292,7 +273,7 @@ class ExpectationExperiment:
 
         self.log_event(block="break_start", time_first=time.perf_counter() - self.start_time, log_file=log_file)
 
-        #self.play_break_sound()
+
         input(message + " Press Enter to continue...")
         
         if self.send_trigger:
@@ -327,18 +308,7 @@ def get_participant_info():
 
 
 
-def create_trigger_mapping():
-    response_bit = 1
-    second_bit = 2
-    expected_bit = 4
-    repetition = 8
-
-    index_bit = 16
-    middle_bit = 32
-
-    break_bit_start = 64
-    break_bit_end = 128
-
+def create_trigger_mapping(response_bit = 1, second_bit = 2, expected_bit = 4, repetition = 8, index_bit = 16, middle_bit = 32, break_bit_start = 64, break_bit_end = 128):
     trigger_mapping = {
         # FIRST STIMULI
         "first/index": index_bit,
@@ -360,18 +330,16 @@ def create_trigger_mapping():
         # RESPONSE
         "response": response_bit,
 
+        # BREAKS
         "break/start": break_bit_start,
         "break/end": break_bit_end
     }
 
     return trigger_mapping
 
-if __name__ in "__main__":
-
-    
+if __name__ in "__main__":    
     participant_id, intensity = get_participant_info()
 
-    break_sound_path = Path(__file__).parents[1] / "utils" / "sound.wav"
 
     # wait 2 seconds
     wait(2)
@@ -390,10 +358,8 @@ if __name__ in "__main__":
         n_events_per_block = 100,
         rng_interval =  (1, 1.5),
         n_repeats_per_block = 2,
-        max_response_time=2, # seconds
-        #random_responses=True,  # REMEMBER TO REMOVE THIS IN REAL EXPERIMENTS
+        max_response_time=MAX_RESPONSE_TIME,
         outpath=OUTPATH / f"{participant_id}_{intensity}.csv",
-        break_sound_path=break_sound_path
     )
 
     duration = experiment.calculate_duration()

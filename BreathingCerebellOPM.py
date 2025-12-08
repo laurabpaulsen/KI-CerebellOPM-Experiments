@@ -58,9 +58,8 @@ class MiddleIndexTactileDiscriminationTask:
             reset_QUEST: Union[int, bool] = False, # how many blocks before resetting QUEST
             QUEST_plus: bool = True,
             send_trigger: bool = False,
-            logfile: Path = Path("data.csv"),
+            logfile: Union[Path, None] = Path("data.csv"),
             SGC_connectors = None,
-            break_sound_path=None,
             target_1=TARGET_1,
             target_1_keys=TARGET_1_KEYS,
             target_2=TARGET_2,
@@ -155,9 +154,6 @@ class MiddleIndexTactileDiscriminationTask:
         self.QUEST_target = QUEST_target 
         self.QUEST_n_resets = 0
         self.QUEST_reset()
-        self.break_sound_path = break_sound_path
-
-
 
         self.start_time = time.perf_counter()
 
@@ -720,8 +716,7 @@ if __name__ == "__main__":
         send_trigger=False, # after running the trial block it is set to True
         logfile = logfile,
         SGC_connectors=connectors,
-        prop_target1_target2=[1/2, 1/2],
-        break_sound_path=Path("utils/sound.wav")
+        prop_target1_target2=[1/2, 1/2]
     )
 
     print_experiment_information(experiment)
