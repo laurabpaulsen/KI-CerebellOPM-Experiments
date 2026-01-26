@@ -8,33 +8,60 @@ sys.path.append(str(Path(__file__).parent))
 
 from typing import Union, List, Tuple, Optional
 from collections import Counter
-import random
-from psychopy.core import wait
-from psychopy.data import QuestPlusHandler, QuestHandler
+
 from psychopy.clock import CountdownTimer
 import time
 
 import numpy as np
 
-from utils.params import connectors 
-from utils.triggers_nidaqmx import create_trigger_mapping, setParallelData
-
-from utils.responses_nidaqmx import NIResponsePad
+from utils.params import connectors, win
+from utils.quest_controller import QuestController
 
 
 
+
+import os
+if os.name == "posix":
+    from utils.responses import KeyboardListener
+    from utils.triggers import setParallelData
+    print("Using KeyboardListener for response collection.")
+else:
+    from utils.responses_nidaqmx import NIResponsePad
+    from utils.triggers_nidaqmx import setParallelData
+
+
+## REMEMBER TO REMOVE THESE!!
+class NIResponsePad:
+        # WORKS: CONCLUSION IS THE TRACE TRAP IS SOME KIND OF INTERACTION BETWEEN PYNPUT AND PSYCHOPY ON MACOS
+        def __init__(self, **kwargs): pass
+        def start_listener(self): pass
+        def stop_listener(self): pass
+        def get_response(self): return None
+        def reset_response(self): pass
+
+## REMEMBER TO REMOVE THESE!!
+class KeyboardListener:
+        # WORKS: CONCLUSION IS THE TRACE TRAP IS SOME KIND OF INTERACTION BETWEEN PYNPUT AND PSYCHOPY ON MACOS
+        def __init__(self, **kwargs): pass
+        def start_listener(self): pass
+        def stop_listener(self): pass
+        def get_response(self): return None
+        def reset_response(self): pass
+
+
+# ------------------- #
 # CONFIG
-# -------------------
-N_REPEATS_BLOCKS = 4 #4
-N_SEQUENCE_BLOCKS = 8
+# ------------------- #
+N_REPEATS_BLOCKS = 4
+N_SEQUENCE_BLOCKS =1 #8
 RESET_QUEST = 2 # how many blocks before resetting QUEST
 ISIS = [1.29, 1.44, 1.57, 1.71] 
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
 STIM_DURATION = 100  # 0.1 ms
+DIFF_SALIENT_WEAK = 0.3  # difference between salient and weak intensity
 
 OUTPUT_PATH = Path(__file__).parent / "output" / "BreathingCerebellOPM"
 OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
-
 
 TARGET_1 = "index"
 TARGET_2 = "middle"
@@ -42,6 +69,23 @@ TARGET_1_KEYS = ["1", "b"]
 TARGET_2_KEYS = ["2", "y"]
 
 
+def create_trigger_mapping( stim = 1, target = 2, middle = 4, index = 8,response = 16, correct = 32, incorrect = 64):
+    trigger_mapping = {
+        "stim/salient": stim,
+        "target/middle": target + middle,
+        "target/index": target + index,
+        "response/index/correct": response + index + correct,
+        "response/middle/incorrect": response + middle + incorrect,
+        "response/middle/correct": response + middle + correct,
+        "response/index/incorrect": response + index + incorrect,
+        "break/start": 128,
+        "break/end": 129,            
+        "experiment/start": 254,
+        "experiment/end": 255
+        }
+
+    return trigger_mapping
+        
     
 class MiddleIndexTactileDiscriminationTask:
     LOG_HEADER = "time,block,ISI,intensity,event_type,trigger,n_in_block,correct,QUEST_reset,rt\n"
@@ -51,12 +95,10 @@ class MiddleIndexTactileDiscriminationTask:
             trigger_mapping: dict,
             ISIs: List[float],
             order: List[int],
+            quest_controller: QuestController,
+            salient_intensity: float = 4.0,
             n_sequences: int = 10,
-            prop_target1_target2: List[float] = [0.5, 0.5],
-            intensities: dict = {"salient": 6.0, "weak": 2.0},
-            QUEST_target: float = 0.75,
             reset_QUEST: Union[int, bool] = False, # how many blocks before resetting QUEST
-            QUEST_plus: bool = True,
             send_trigger: bool = False,
             logfile: Union[Path, None] = Path("data.csv"),
             SGC_connectors = None,
@@ -64,6 +106,8 @@ class MiddleIndexTactileDiscriminationTask:
             target_1_keys=TARGET_1_KEYS,
             target_2=TARGET_2,
             target_2_keys=TARGET_2_KEYS,
+            practice_mode: bool = False,
+            win = None
         ):
         
     
@@ -80,9 +124,6 @@ class MiddleIndexTactileDiscriminationTask:
         n_sequences : int, optional
             Number of sequences in each block. Defaults to 10.
         
-        prop_target1_target2 : list, optional
-            Proportions of target1 and target2.
-            Defaults to [0.5, 0.5].
         
         intensities : dict, optional
             A dictionary mapping stimulus types ("salient", "weak") to intensity values.
@@ -116,9 +157,9 @@ class MiddleIndexTactileDiscriminationTask:
         self.n_sequences = n_sequences
         self.order = order
         self.trigger_mapping = trigger_mapping
-        self.prop_target1_target2 = prop_target1_target2
         self.send_trigger = send_trigger
         self.SGC_connectors = SGC_connectors
+        self.salient_intensity = salient_intensity
 
         self.countdown_timer = CountdownTimer() 
         self.events: List[Union[dict, str]] = []
@@ -126,19 +167,28 @@ class MiddleIndexTactileDiscriminationTask:
         self.target_1 = target_1
         self.target_2 = target_2
 
-        # for response handling 
-        self.listener = NIResponsePad(
-            device="Dev1",
-            port="port6",
-            num_lines=4,
-            mapping={
-                0: 'b',  # right key
-                1: 'y',  # left key
-            },
-            poll_interval_s=0.0005,
-            debounce_ms=50,
-            timestamp_responses=False
-        )
+
+        if os.name == "posix":
+            valid_keys = list(set(target_1_keys + target_2_keys))
+            self.listener = KeyboardListener(
+                valid_keys=valid_keys,
+                active=True
+            )
+
+        else:
+            self.listener = NIResponsePad(
+                device="Dev1",
+                port="port6",
+                num_lines=4,
+                mapping={
+                    0: 'b',  
+                    1: 'y', 
+                },
+                poll_interval_s=0.0005,
+                debounce_ms=50,
+                timestamp_responses=False
+            )
+        print(self.listener)
 
         self.keys_target = {
             target_1: target_1_keys,
@@ -146,16 +196,30 @@ class MiddleIndexTactileDiscriminationTask:
         }
         
         
-        # QUEST parameters
-        self.intensities =  intensities 
-        self.QUEST_start_val = intensities["weak"] # NOTE: do we want to reset QUEST with the startvalue or start from a percentage of the weak intensity stimulation?
-        self.max_intensity_weak = intensities["salient"] - 0.5
-        self.QUEST_plus = QUEST_plus
-        self.QUEST_target = QUEST_target 
-        self.QUEST_n_resets = 0
-        self.QUEST_reset()
+        self.QUEST = quest_controller
+        
 
+        
+        if win is not None:
+            self.win = win
+
+            from psychopy import visual
+            self.fixation = visual.TextStim(self.win, text='+', height=0.1)
+            self.break_message = visual.TextStim(self.win, text='Time for a break!', height=0.05)
+        
+        self.practice_mode = practice_mode    
+        
         self.start_time = time.perf_counter()
+
+    def show_fixation(self, color=[1, 1, 1]):
+        if self.win is None:
+            return
+
+        self.fixation.color = color
+        self.fixation.draw()
+        self.win.flip()
+
+
 
     def setup_experiment(self):
         logged_block_idx = 0
@@ -174,6 +238,7 @@ class MiddleIndexTactileDiscriminationTask:
 
                 self.events.extend(self.event_sequence(self.n_sequences, ISI, logged_block_idx, reset_QUEST=reset))
                 logged_block_idx += 1
+
         
     def event_sequence(self, n_sequences, ISI, block_idx, n_salient=3, reset_QUEST: Union[int, None] = None) -> List[dict]:
         """
@@ -185,6 +250,19 @@ class MiddleIndexTactileDiscriminationTask:
         event_counter_in_block = 0
 
         events = []
+
+        # equal amounts of target 1 and target 2 over the entire block
+        n_targets_each = n_sequences // 2
+        list_of_targets = [self.target_1] * n_targets_each + [self.target_2] * n_targets_each
+
+        # if odd number of sequences, add one more random target
+        if n_sequences % 2 != 0:
+            list_of_targets.append(np.random.choice([self.target_1, self.target_2]))
+
+        # shuffle the target order
+        np.random.shuffle(list_of_targets)
+        
+
         for seq in range(n_sequences):
             
             # checking if it is time for a QUEST reset
@@ -197,67 +275,26 @@ class MiddleIndexTactileDiscriminationTask:
                     reset=False
             
             event_counter_in_block += 1
-            event_type = np.random.choice([self.target_1, self.target_2], 1, p=self.prop_target1_target2)
+            event_type = f"target/{list_of_targets[seq]}"
             
 
-            events.append({"ISI": ISI, "event_type": f"target/{event_type[0]}", "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": False})
+            events.append({"ISI": ISI, "event_type": event_type, "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": False})
 
         return events
     
-    def make_QUEST_handler(self):
-        if self.QUEST_plus:
-            return QuestPlusHandler(
-                startIntensity=self.QUEST_start_val,
-                intensityVals=[round(i, 1) for i in np.arange(1.0, self.max_intensity_weak, 0.1)],
-                thresholdVals=[round(i, 1) for i in np.arange(1.0, self.max_intensity_weak, 0.1)],
-                stimScale="linear",
-                responseVals=(1, 0),
-                slopeVals=[3, 4, 5],
-                lowerAsymptoteVals=0.5,
-                lapseRateVals=0.05,
-                nTrials=None
-            )
-        else:
-            return QuestHandler(
-                startVal=self.QUEST_start_val,
-                startValSd=1.0,
-                minVal=1.0,
-                maxVal=self.max_intensity_weak,
-                pThreshold=self.QUEST_target,
-                stepType="linear",
-                nTrials=None,
-                beta=3.5,
-                gamma=0.5,
-                delta=0.01
-            )
+    
+    def update_salient_intensity(self, new):
+        self.salient_intensity = new
         
-    
-    def QUEST_reset(self):
-        """Reset the QUEST procedure and update intensity."""
+        if self.SGC_connectors:
+            for c in self.SGC_connectors.values():
+                c.change_intensity(new)
 
-        # update the quest start val to the previous weak intensity
-        if self.QUEST_n_resets > 0:
-            self.QUEST_start_val = min(self.QUEST.mean(), self.max_intensity_weak)
-            print(f"QUEST start value updated to: {self.QUEST_start_val}")
-        self.QUEST = self.make_QUEST_handler()
+        self.QUEST.update_max_weak(new - self.QUEST.diff)
 
-        self.update_weak_intensity()
-        self.QUEST_n_resets += 1
-        print("QUEST has been reset")
-
-    def update_weak_intensity(self):
-        """
-        Update the weak intensity based on the QUEST procedure!
-        """
-        proposed_intensity = self.QUEST.next()
-    
-        # make sure the intensity is not higher than the max allowed
-        proposed_intensity = max(1.0, min(proposed_intensity, self.max_intensity_weak))
-
-        self.intensities["weak"] = round(proposed_intensity, 1)
 
     
-    def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None):
+    def trig_break_start(self, log_file=None):
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
             # also log the event¨
@@ -267,7 +304,7 @@ class MiddleIndexTactileDiscriminationTask:
                     block="break",
                     ISI="NA",
                     intensity="NA",
-                    event_type="break",
+                    event_type="break/start",
                     trigger=self.trigger_mapping["break/start"],
                     n_in_block="NA",
                     correct="NA",
@@ -275,8 +312,7 @@ class MiddleIndexTactileDiscriminationTask:
                     rt="NA",
                     log_file=log_file
                 )
-
-        input(message + " Press Enter to continue...")
+    def trig_break_end(self, log_file=None):
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
             if log_file:
@@ -293,31 +329,52 @@ class MiddleIndexTactileDiscriminationTask:
                     rt="NA",
                     log_file=log_file
                 )
-        wait(2)
+    
+    def check_in_on_participant(self, message: str = "Check in on the participant."):
+        input(message + " Press Enter to continue...")
 
     def loop_over_events(self, events: List[Union[dict, str]], log_file):
         """
         Loop over the events in the experiment
         """
+
         # how many breaks
         total_breaks = events.count("break")
-
         n_breaks_done = 0
 
 
         for i, trial in enumerate(events):
             if trial == "break":
-                self.check_in_on_participant(log_file=log_file)
+                self.trig_break_start(log_file=log_file)
+                if win is not None:
+                    self.break_message.draw()
+                    self.win.flip()
+                self.check_in_on_participant()
+                self.ask_for_update_intensity()
+                self.show_fixation()
                 n_breaks_done += 1
+                self.trig_break_end(log_file=log_file)
+
                 continue
             
             event_type = trial["event_type"]
             trigger = self.trigger_mapping[event_type]
-
-            intensity = self.intensities["salient"] if "salient" in event_type else self.intensities["weak"]
+            
+            if "salient" in event_type:
+                intensity = self.salient_intensity
+            else:
+                intensity = self.QUEST.current_intensity
 
             if self.send_trigger:
                 self.raise_and_lower_trigger(trigger)  # Send trigger
+
+            if "target" in event_type:
+                self.listener.reset_response()
+                if self.practice_mode:
+                    self.show_fixation(color=[0, 1, 0])
+                response_given = False
+            else:
+                self.show_fixation()
             
             # deliver pulse
             self.deliver_stimulus(event_type)
@@ -350,10 +407,8 @@ class MiddleIndexTactileDiscriminationTask:
                     pass
 
             if trial["reset_QUEST"]:
-                self.QUEST_reset()
-            if "target" in event_type:
-                self.listener.reset_response()
-                response_given = False
+                self.QUEST.reset(verbose=True)
+        
             
             while (time.perf_counter() - self.start_time) < target_time:
                 # check for key press during target window
@@ -385,35 +440,20 @@ class MiddleIndexTactileDiscriminationTask:
                             )
                             
 
-                        self.QUEST.addResponse(correct, intensity=intensity)
-                        self.update_weak_intensity()
+                        self.QUEST.add_response(correct, intensity=intensity)
 
             if ("target" in event_type) and (not response_given):
                 print("No response given")
                 # Update QUEST with the guessed outcome and advance intensity
-                self.QUEST.addResponse(np.random.choice([0, 1]), intensity=intensity)
-                self.update_weak_intensity()
+                self.QUEST.add_response(np.random.choice([0, 1]), intensity=intensity)
 
+        # change fixation back to white at the end of the block
+        self.show_fixation(color=[1, 1, 1]) 
 
     def log_event(self, event_time="NA", block="NA", ISI="NA", intensity="NA", event_type="NA", trigger="NA", n_in_block="NA", correct="NA", reset_QUEST="NA", rt="NA", log_file=None):
         if log_file:
             log_file.write(f"{event_time},{block},{ISI},{intensity},{event_type},{trigger},{n_in_block},{correct},{reset_QUEST},{rt}\n")
     
-    
-    def get_user_input_respiratory_rate(self):
-        while True:
-            try:
-                respiratory_rate = float(input("Please input the average length of one respiratory cycle: "))
-                if respiratory_rate <= 0:
-                    print("Invalid input. Please enter a positive value.")
-                else: 
-                    break
-            except ValueError:
-                print("Invalid input. Please enter a numeric value.")
-
-        return respiratory_rate
-
-
     def correct_or_incorrect(self, key, event_type):
         if key in self.keys_target[event_type.split('/')[-1]]:
             return 1, self.trigger_mapping[f"response/{event_type.split('/')[-1]}/correct"]
@@ -441,7 +481,6 @@ class MiddleIndexTactileDiscriminationTask:
         
         for block in self.order:
             if block == "break":
-                # give an arbitrary pause duration for breaks (e.g. 60 s)
                 total_duration += break_duration
                 continue
 
@@ -499,13 +538,16 @@ class MiddleIndexTactileDiscriminationTask:
         if self.SGC_connectors:
             # after sending the trigger for the weak target stimulation change the intensity to the salient intensity
             if "target" in event_type: 
-                self.SGC_connectors[event_type.split("/")[-1]].change_intensity(self.intensities["salient"])
+                self.SGC_connectors[event_type.split("/")[-1]].change_intensity(self.salient_intensity)
 
             # check if next stimuli is weak, then lower based on which!
             if "target" in next_event_type:
-                self.SGC_connectors[next_event_type.split("/")[-1]].change_intensity(self.intensities["weak"])
+                weak = self.QUEST.next_intensity()
+                self.SGC_connectors[next_event_type.split("/")[-1]].change_intensity(weak)
 
     def trial_block(self, ISI=1.5, n_sequences=None):
+
+        print("Starting trial block.")
         n_sequences = n_sequences if n_sequences else self.n_sequences
         # Generate the sequence of events for the trial block
         trial_sequence_events = self.event_sequence(n_sequences=n_sequences, ISI=ISI, block_idx="trial", reset_QUEST=None)
@@ -516,6 +558,33 @@ class MiddleIndexTactileDiscriminationTask:
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
+
+
+    def ask_for_update_intensity(self):
+        # possiblility to update intensities after practice
+        while True:
+            update = input("\nUpdate salient intensity? (y/n): ").strip().lower()
+            # check if y or n, otherwise ask again
+            if update not in ["y", "n"]:
+                print("❌ Invalid input. Please enter 'y' or 'n'.")
+                continue
+            break
+        if update == "y":
+            while True:
+                try:
+                    new = float(input(f"Enter new salient intensity ({np.min(VALID_INTENSITIES)}–{np.max(VALID_INTENSITIES)}): "))
+                    if new not in VALID_INTENSITIES:
+                        raise ValueError
+                    break
+                except ValueError:
+                    print(f"❌ Invalid input. Enter a number between {np.min(VALID_INTENSITIES)} and {np.max(VALID_INTENSITIES)} in steps of 0.1.")
+
+            # apply to experiment
+            self.update_salient_intensity(new)
+
+            # wait
+            time.sleep(2)
+
 
 def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
     """
@@ -553,8 +622,6 @@ def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
     return order
 
 
-
-
 # UTILITIES
 # -------------
 def build_block_order(
@@ -586,8 +653,10 @@ def build_block_order(
 
         last = path[-1]
         next_options = block_types[:]
-        random.shuffle(next_options)
 
+        # shuffle next options to introduce randomness
+        np.random.shuffle(next_options)
+        
         for next_block in next_options:
             if next_block == last:
                 continue
@@ -607,7 +676,7 @@ def build_block_order(
     else:
         start_blocks = [s for s in start_blocks if s in block_types]
 
-    for start_block in random.sample(start_blocks, len(start_blocks)):
+    for start_block in np.random.choice(start_blocks, len(start_blocks), replace=False):
         result = backtrack([start_block])
         if result:
             return result
@@ -622,6 +691,7 @@ def print_experiment_information(experiment):
     print(f"Estimated total duration: {duration/60:.1f} minutes ({duration:.0f} seconds)")
     experiment.setup_experiment()
 
+    """
     # Extract event_type from each dictionary
     event_types = [e.get("event_type") for e in experiment.events if isinstance(e, dict)]
 
@@ -646,6 +716,7 @@ def print_experiment_information(experiment):
     print("\nTransition counts:")
     for (a, b), count in transition_counts.items():
         print(f"  ({a} -> {b}): {count}")
+    """
 
 def get_participant_info():
     pid = input("Enter participant ID: ").strip()
@@ -693,66 +764,36 @@ if __name__ == "__main__":
 
     print(f"Behavioural data will be saved to: {logfile}")
 
-
     # wait 2 seconds
-    wait(2)
+    time.sleep(2)
 
     for finger, connector in connectors.items():
         connector.set_pulse_duration(STIM_DURATION)
         connector.change_intensity(start_intensities["salient"])
 
     order = generate_block_order(ISIs=ISIS, n_repeats=N_REPEATS_BLOCKS)
-    print(f"Block order: {order}")
 
-    
+    quest_controller = QuestController(
+        start_val=start_intensities["weak"],
+        max_weak=start_intensities["salient"] - DIFF_SALIENT_WEAK,
+        target=0.75
+    )
+
     experiment = MiddleIndexTactileDiscriminationTask(
-        intensities=start_intensities,
+        send_trigger=True,
         n_sequences=N_SEQUENCE_BLOCKS,
+        quest_controller=quest_controller,
+        salient_intensity=start_intensities["salient"],
         order = order,
-        QUEST_plus=False,
         reset_QUEST=RESET_QUEST, # reset QUEST every x blocks
         ISIs=ISIS,
         trigger_mapping=create_trigger_mapping(),
-        send_trigger=False, # after running the trial block it is set to True
         logfile = logfile,
         SGC_connectors=connectors,
-        prop_target1_target2=[1/2, 1/2]
+        win=win,
     )
 
+    experiment.show_fixation()
     print_experiment_information(experiment)
-    #experiment.check_in_on_participant(message="Ready to begin practice block.")
-    #experiment.trial_block(ISI=1.5, n_sequences=12) # practice block
-
-    # possiblility to update intensities after practice
-    while True:
-        update = input("\nUpdate salient intensity? (y/n): ").strip().lower()
-        if "y" not in update:
-            break
-
-        while True:
-            try:
-                new_salient = float(input("Enter new salient intensity (1.0–10.0): "))
-                if new_salient not in VALID_INTENSITIES:
-                    raise ValueError
-                break
-            except ValueError:
-                print("❌ Invalid input. Enter a number between 1.0 and 10.0 in steps of 0.1.")
-
-        # apply to experiment
-        experiment.intensities["salient"] = new_salient
-
-        # push new values to the devices
-        for side, connector in experiment.SGC_connectors.items():
-            connector.change_intensity(new_salient)
-
-        # short trial block to confirm
-        experiment.check_in_on_participant(message="Ready to begin short confirmation block.")
-        experiment.trial_block(ISI=1.5, n_sequences=4)
-
-
-    experiment.send_trigger = True
     experiment.check_in_on_participant(message="Ready to begin main experiment.")
     experiment.run()
-
-
-
