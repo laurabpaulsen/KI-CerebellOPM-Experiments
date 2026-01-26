@@ -6,35 +6,43 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
-
 import time
 from typing import Union
 import numpy as np
 import copy
 
-from utils.triggers_nidaqmx import setParallelData
-from utils.responses_nidaqmx import NIResponsePad
-#from utils.responses import KeyboardListener
+import os
+if os.name == "posix":
+    from utils.responses import KeyboardListener
+    from utils.triggers import setParallelData
+else:
+    from utils.responses_nidaqmx import NIResponsePad
+    from utils.triggers_nidaqmx import setParallelData
 
+from psychopy import visual
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
 from BreathingCerebellOPM import (
     VALID_INTENSITIES, STIM_DURATION, 
-    BUTTONS_INDEX, BUTTONS_MIDDLE
+    TARGET_1, TARGET_1_KEYS,
+    TARGET_2, TARGET_2_KEYS,
     )
 
-from utils.params import connectors
+from utils.params import connectors, win
 
 
-MAX_RESPONSE_TIME = 4  # seconds
+ISI=0.701  # seconds
+RNG_INTERVAL=(1., 1.25)  # seconds
+N_EVENTS_PER_BLOCK=160  # number of stimulus pairs per block
+
 OUTPATH = Path(__file__).parent / "output" / "ExpectingCerebellOPM"
 
 if not OUTPATH.exists():
     OUTPATH.mkdir(parents=True, exist_ok=True)
 
 class ExpectationExperiment:
-    LOGHEADER = "block,stim_site_first,time_first,stim_site_second,time_second,repeated,expected,response,RT,correct\n"
+    LOGHEADER = "block,stim_site_first,time_first,stim_site_second,time_second,repeated,expected,response,RT,correct,intensity\n"
     def __init__(
         self, ISI: float, 
         trigger_mapping:dict,
@@ -43,16 +51,17 @@ class ExpectationExperiment:
         prop_expected_unexpected:list = [0.75, 0.25], 
         first_stimuli = ["middle", "index"], 
         second_stimuli = ["middle", "index"], 
-        behavioural_task:Union[bool, str] = "second",
-        max_response_time: float = MAX_RESPONSE_TIME,
         n_events_per_block = 100,
         rng_interval =  (1, 1.5),
         n_repeats_per_block = 2,
         send_trigger: bool = True,
         response_keys: dict = {
-            "index": BUTTONS_INDEX,
-            "middle": BUTTONS_MIDDLE
-        }
+            TARGET_1: TARGET_1_KEYS,
+            TARGET_2: TARGET_2_KEYS,
+        },
+        practise_mode: bool = False,
+        win=None,
+        intensity: float = 2.5,
         ):
         """
         
@@ -65,9 +74,7 @@ class ExpectationExperiment:
         outpath : str or Path
         first_stimuli : list[str]
         second_stimuli : list[str]
-        behavioural_task : False | "first" |  "second" | "catch"
-        wait_after_response : float 
-            determines the wait time before the next trial after a keypress. Only used if behavioural task is not False.
+
         
         """
         self.ISI: float = ISI
@@ -83,9 +90,17 @@ class ExpectationExperiment:
         self.countdown_timer = CountdownTimer()
         self.rng_IPI = np.random.Generator(np.random.PCG64())
         self.rng_interval = rng_interval
-        self.max_response_time = max_response_time  # in seconds
-        self.behavioural_task = behavioural_task
         self.send_trigger = send_trigger
+        self.practise_mode = practise_mode
+        self.intensity = intensity
+
+        if win is not None:
+            self.win = win
+
+            from psychopy import visual
+            self.fixation = visual.TextStim(self.win, text='+', height=0.1)
+            self.break_message = visual.TextStim(self.win, text='Time for a break!', height=0.05)
+            self.env_change_message = visual.TextStim(self.win, text='The statistical regularites between the first and the second stimulus may have changed now! Take a little break.', height=0.05)
 
         # Map lines to response labels used by the experiment.
         line_to_label = {
@@ -94,16 +109,23 @@ class ExpectationExperiment:
             2: "g", # green
             3: "r", # red
         }
+        if os.name == "posix":
+            valid_keys = list(response_keys[TARGET_1]) + list(response_keys[TARGET_2])
+            self.listener = KeyboardListener(
+                valid_keys=valid_keys,
+                active=True
+            )
 
-        self.listener = NIResponsePad(
-            device="Dev1",
-            port="port6",
-            num_lines=4,
-            mapping=line_to_label,
-            poll_interval_s=0.0005,
-            debounce_ms=30,
-            timestamp_responses=False,
-        )
+        else:
+            self.listener = NIResponsePad(
+                device="Dev1",
+                port="port6",
+                num_lines=4,
+                mapping=line_to_label,
+                poll_interval_s=0.0005,
+                debounce_ms=30,
+                timestamp_responses=False,
+            )
 
         self.response_keys = response_keys
         self.prep_events()
@@ -143,7 +165,7 @@ class ExpectationExperiment:
                 for exp, prob in zip(["expected", "unexpected"], self.prop_exp_unexp):
                     n_trials = int(self.n_events_per_block/2 * prob)
 
-                    for _ in range(n_trials):
+                    for _ in range(n_trials+1):
                         second = pair[exp]
                         repeated_label = "repeated" if first == second else "unrepeated"
                         trigger_second_key = f"second/{second}/{exp}/{repeated_label}"
@@ -157,7 +179,6 @@ class ExpectationExperiment:
                                 "expected": exp,
                                 "repeated": repeated_label,
                                 "IPI": self.rng_IPI.uniform(*self.rng_interval),
-                                "behaviour": self.behavioural_task,
                             }
                         )
 
@@ -172,14 +193,19 @@ class ExpectationExperiment:
 
         self.blocks = all_blocks
 
-        print(f"Total number of events: {len(self.blocks)}")
     
+    def show_fixation(self, color=[1, 1, 1]):
+            if self.win is None:
+                return
+
+            self.fixation.color = color
+            self.fixation.draw()
+            self.win.flip()
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
         
-
-    def calculate_duration(self):
+    def calculate_duration(self, response_time: float = 1.0) -> float:
         """
         Calculates the total duration of the experiment in seconds.
 
@@ -192,17 +218,12 @@ class ExpectationExperiment:
         
         for block in self.blocks:
             total_time += 2 # sleep after initialising new block
-            # break time
-            total_time += 60  # assuming fixed 60 seconds break between blocks
 
             for event in block:
                 total_time += self.ISI  # ISI time
                 total_time += event["IPI"]  # Inter-pair interval
-                if event["behaviour"]:
-                    total_time += self.max_response_time
+                total_time += response_time
                 
-                # trigger durations
-                total_time += 3 * 0.005  # for first and second stimuli and response
             
         return total_time
 
@@ -210,9 +231,6 @@ class ExpectationExperiment:
         if self.SGC_connectors:
             self.SGC_connectors[site].send_pulse()
 
-    def initialise_block(self):
-        self.check_in_on_participant("Starting new block. Check in on the participant.")
-    
     def run(self):
         # Start the listener once at the start
         self.listener.start_listener()
@@ -222,10 +240,18 @@ class ExpectationExperiment:
             log_file.write(self.LOGHEADER)
 
             for i_block, block in enumerate(self.blocks):
-                self.initialise_block()
                 for i, event in enumerate(block):
+                    self.show_fixation()
                     print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}")
-                    response, correct, response_time = None, None, None
+
+                    # break in the middle of the block
+                    if i == len(block)//2 and not self.practise_mode:
+                        # break message
+                        self.break_message.draw()
+                        self.win.flip()
+                        self.check_in_on_participant("Halfway through the block. Check in on the participant.", ask_for_update=False)
+                        self.show_fixation()
+
 
                     time_first = time.perf_counter()
                     self.deliver_stimulus(event["first"])
@@ -235,52 +261,86 @@ class ExpectationExperiment:
                     self.deliver_stimulus(event["second"])
                     self.raise_and_lower_trigger(event["trigger_second"])
 
-                    # Only poll responses during the response window
-                    self.countdown_timer.reset(self.max_response_time)
-
                     self.listener.reset_response()  # <- clear any lingering press from previous trial
-                    while self.countdown_timer.getTime() > 0:
+                    while True:
                         candidate = self.listener.get_response()
                         if candidate:
                             response = candidate
                             response_time = time.perf_counter() - time_second
                             correct = response in self.response_keys[event["second"]]
                             self.raise_and_lower_trigger(self.trigger_mapping["response"])
-                            print(f" Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
+                            print(f"{event['second']} {event['repeated']}, {event['expected']} - Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
                             break
 
                     # Log the event
                     self.log_event(
                         i_block, event["first"], time_first, event["second"],
                         time_second, event["repeated"], event["expected"],
-                        response, response_time, correct, log_file
+                        response, response_time, correct, self.intensity, log_file
                     )
 
 
                     ## Wait for the inter-pair interval
                     wait(event["IPI"])
 
+                # present env change message between blocks
+                if not self.practise_mode and i_block < len(self.blocks) - 1:
+                    self.env_change_message.draw()
+                    self.win.flip()
+                    self.check_in_on_participant("Starting new block. Check in on the participant.", ask_for_update=True)
+
+
         self.listener.stop_listener()
         print("Experiment finished.")
 
-    def log_event(self, block="NA", stim_site_first="NA", time_first="NA", stim_site_second="NA", time_second="NA", repeated="NA", expected="NA", response="NA", RT="NA", correct="NA", log_file=None):
+    def log_event(self, block="NA", stim_site_first="NA", time_first="NA", stim_site_second="NA", time_second="NA", repeated="NA", expected="NA", response="NA", RT="NA", correct="NA", intensity = "NA", log_file=None):
         if log_file:
-            log_file.write(f"{block},{stim_site_first},{time_first},{stim_site_second},{time_second},{repeated},{expected},{response},{RT},{correct}\n")
+            log_file.write(f"{block},{stim_site_first},{time_first},{stim_site_second},{time_second},{repeated},{expected},{response},{RT},{correct},{intensity}\n")
 
-    def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None):
+    def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None, ask_for_update: bool = True):
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
-
-        self.log_event(block="break_start", time_first=time.perf_counter() - self.start_time, log_file=log_file)
-
+            self.log_event(block="break_start", time_first=time.perf_counter() - self.start_time, log_file=log_file)
 
         input(message + " Press Enter to continue...")
+
+        if ask_for_update:
+            self.ask_for_update_intensity()
         
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
             self.log_event(block="break_end", time_first=time.perf_counter() - self.start_time, log_file=log_file)
         
         wait(2)
+
+    def ask_for_update_intensity(self):
+        # possiblility to update intensities after practice
+        while True:
+            update = input("\nUpdate salient intensity? (y/n): ").strip().lower()
+            # check if y or n, otherwise ask again
+            if update not in ["y", "n"]:
+                print("❌ Invalid input. Please enter 'y' or 'n'.")
+                continue
+            break
+        if update == "y":
+            while True:
+                try:
+                    new = float(input(f"Old intensity = {self.intensity}. Enter new salient intensity (1.0–10.0): "))
+                    if new not in VALID_INTENSITIES:
+                        raise ValueError
+                    break
+                except ValueError:
+                    print("❌ Invalid input. Enter a number between 1.0 and 10.0 in steps of 0.1.")
+
+            # apply to experiment
+            self.intensity = new
+
+            # push new values to the devices
+            for side, connector in self.SGC_connectors.items():
+                connector.change_intensity(new)
+
+            # wait
+            wait(2)
 
 def get_participant_info():
     pid = input("Enter participant ID: ").strip()
@@ -340,29 +400,42 @@ def create_trigger_mapping(response_bit = 1, second_bit = 2, expected_bit = 4, r
 if __name__ in "__main__":    
     participant_id, intensity = get_participant_info()
 
-
-    # wait 2 seconds
-    wait(2)
-
     for finger, connector in connectors.items():
         connector.set_pulse_duration(STIM_DURATION)
         connector.change_intensity(intensity)
 
     trigger_mapping = create_trigger_mapping()
+    outpath = OUTPATH / f"{participant_id}_{intensity}.csv"
+
+    # check whether the output file already exists
+    if outpath.exists():
+        # append a number to the filename
+        i = 1
+        while True:
+            new_outpath = OUTPATH / f"{participant_id}_{intensity}_{i}.csv"
+            if not new_outpath.exists():
+                outpath = new_outpath
+                break
+            i += 1
 
     experiment = ExpectationExperiment(
-        ISI=0.54,
+        ISI=ISI,
         trigger_mapping=trigger_mapping,
-        behavioural_task="second",
         connectors=connectors,
-        n_events_per_block = 100,
-        rng_interval =  (1, 1.5),
+        n_events_per_block = N_EVENTS_PER_BLOCK,
+        rng_interval = RNG_INTERVAL,
         n_repeats_per_block = 2,
-        max_response_time=MAX_RESPONSE_TIME,
-        outpath=OUTPATH / f"{participant_id}_{intensity}.csv",
+        outpath=outpath,
+        intensity=intensity,
+        win=win,
+
     )
 
-    duration = experiment.calculate_duration()
-    print(f"Estimated duration: {duration/60} minutes")
-    
+    average_rt = 0.9  # average response time in seconds
+    duration = experiment.calculate_duration(response_time=average_rt)
+    print(f"Estimated active duration: {duration/60} minutes with a response time of {average_rt} seconds.")
+    experiment.show_fixation()
+    input("Press Enter to begin the experiment...")
     experiment.run()
+
+    
