@@ -3,7 +3,7 @@ from pynput import keyboard
 class KeyboardListener:
     """A class to listen for keyboard inputs."""
     
-    def __init__(self, valid_keys = ["b", "y", "1", "2"], active=False):
+    def __init__(self, valid_keys = ["b", "y", "1", "2"], active=False, **kwargs):
         self.active = active
         self.key_pressed = None
         self.listener = None
@@ -27,6 +27,9 @@ class KeyboardListener:
     def get_response(self):
         """Retrieve the last key pressed and reset the key state."""
         response = self.key_pressed
-        self.key_pressed = None  # Reset after capturing
         
         return response
+    
+    def reset_response(self):
+        """Reset the key state without retrieving."""
+        self.key_pressed = None  # Reset
