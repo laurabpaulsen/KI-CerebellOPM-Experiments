@@ -98,7 +98,7 @@ class ExpectationExperiment:
         self.intensity = intensity
         self.win = win
 
-        self.display = FixationDisplay()
+        self.display = FixationDisplay(screen_index=1)
         self.break_message = 'Time for a break!'
         self.env_change_message = 'The statistical regularites between the first and the second stimulus may have changed now! Take a little break.'
         # Map lines to response labels used by the experiment.
