@@ -28,7 +28,8 @@ from BreathingCerebellOPM import (
     TARGET_2, TARGET_2_KEYS,
     )
 
-from utils.params import connectors, win
+from utils.params import connectors#, win
+win=None
 
 
 ISI=0.701  # seconds

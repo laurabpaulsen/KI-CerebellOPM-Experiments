@@ -14,7 +14,8 @@ import time
 
 import numpy as np
 
-from utils.params import connectors, win
+from utils.params import connectors#, win
+win=None
 from utils.quest_controller import QuestController
 import os
 
