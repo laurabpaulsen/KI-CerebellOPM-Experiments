@@ -14,14 +14,15 @@ import time
 
 import numpy as np
 
-from utils.params import connectors#, win
-win=None
+from utils.params import connectors
 from utils.quest_controller import QuestController
 import os
 
 from utils.responses import KeyboardListener
 from utils.responses_nidaqmx import NIResponsePad
 from utils.triggers_nidaqmx import setParallelData
+
+from utils.fixation_display import FixationDisplay
 
 print("Using KeyboardListener for response collection.")
 
@@ -84,7 +85,6 @@ class MiddleIndexTactileDiscriminationTask:
             target_2=TARGET_2,
             target_2_keys=TARGET_2_KEYS,
             practice_mode: bool = False,
-            win = None
         ):
         
     
@@ -176,20 +176,15 @@ class MiddleIndexTactileDiscriminationTask:
         self.QUEST = quest_controller
         
 
-        self.win = None
-       
+        self.display = FixationDisplay() 
+
         
         self.practice_mode = practice_mode    
         
         self.start_time = time.perf_counter()
 
-    def show_fixation(self, color=[1, 1, 1]):
-        if self.win is None:
-            return
-
-        self.fixation.color = color
-        self.fixation.draw()
-        self.win.flip()
+    def show_fixation(self, color="white"):
+        self.display.show_fixation(color=color)
 
 
 
@@ -343,7 +338,7 @@ class MiddleIndexTactileDiscriminationTask:
             if "target" in event_type:
                 self.listener.reset_response()
                 if self.practice_mode:
-                    self.show_fixation(color=[0, 1, 0])
+                    self.show_fixation(color="green")
                 response_given = False
             else:
                 self.show_fixation()
@@ -761,7 +756,7 @@ if __name__ == "__main__":
         trigger_mapping=create_trigger_mapping(),
         logfile = logfile,
         SGC_connectors=connectors,
-        win=win,
+
     )
 
     experiment.show_fixation()
