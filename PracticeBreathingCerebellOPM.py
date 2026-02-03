@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
-from utils.params import connectors, win
+from utils.params import connectors
 from psychopy import visual
 
 from BreathingCerebellOPM import (

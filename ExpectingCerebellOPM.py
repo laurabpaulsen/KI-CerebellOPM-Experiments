@@ -29,7 +29,7 @@ from BreathingCerebellOPM import (
     TARGET_2, TARGET_2_KEYS,
     )
 
-from utils.params import connectors#, win
+from utils.params import connectors
 
 from utils.fixation_display import FixationDisplay
 
@@ -422,7 +422,7 @@ if __name__ in "__main__":
         n_repeats_per_block = 2,
         outpath=outpath,
         intensity=intensity,
-        win=win,
+        win=None,
 
     )
 
