@@ -53,7 +53,7 @@ def _init_task():
         _trigger_task_SQUID = "MOCK"
 
         
-def setParallelDataOPM(code=1):
+def setParallelData(code=1):
     _init_task()
 
     if USE_NIDAQ:
