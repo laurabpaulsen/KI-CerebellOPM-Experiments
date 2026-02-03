@@ -92,9 +92,10 @@ class ExpectationExperiment:
         self.send_trigger = send_trigger
         self.practise_mode = practise_mode
         self.intensity = intensity
+        self.win = win
 
-        if win is not None:
-            self.win = win
+        if self.win is not None:
+
 
             from psychopy import visual
             self.fixation = visual.TextStim(self.win, text='+', height=0.1)
