@@ -57,7 +57,6 @@ if __name__ in "__main__":
     experiment = ExpectationExperiment(
         ISI=ISI,
         trigger_mapping=trigger_mapping,
-        behavioural_task="second",
         connectors=connectors,
         n_events_per_block = 8,
         rng_interval =  RNG_INTERVAL,
