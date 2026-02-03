@@ -176,9 +176,8 @@ class MiddleIndexTactileDiscriminationTask:
         self.QUEST = quest_controller
         
 
-        
-        if win is not None:
-            self.win = win
+        self.win = None
+        if self.win is not None:
 
             from psychopy import visual
             self.fixation = visual.TextStim(self.win, text='+', height=0.1)
