@@ -58,10 +58,10 @@ def setParallelData(code=1):
 
     if USE_NIDAQ:
         _trigger_task_OPM.write(code, auto_start=True)
-        _trigger_task_SQUID.write(code, auto_start=True) 
+        #_trigger_task_SQUID.write(code, auto_start=True) 
         time.sleep(PULSE_WIDTH)
         _trigger_task_OPM.write([False] * 8, auto_start=True)
-        _trigger_task_SQUID.write([False] * 8, auto_start=True)
+        #_trigger_task_SQUID.write([False] * 8, auto_start=True)
     else:
         # Fake trigger behaviour
         timestamp = time.perf_counter()
