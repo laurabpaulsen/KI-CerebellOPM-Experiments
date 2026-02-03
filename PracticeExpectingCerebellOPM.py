@@ -34,8 +34,8 @@ practice_instructions = [
         "However, sometimes the second stimulus will be on the other finger than expected.",
 
         "Indicate which finger received the second stimulus by pressing the corresponding key. \n\n\n"
-        f"{TARGET_1} finger: {key_color_mapping[TARGET_1_KEYS[1]]} \n\n"
-        f"{TARGET_2} finger: {key_color_mapping[TARGET_2_KEYS[1]]}",
+        f"{TARGET_1} finger: {key_color_mapping[TARGET_1_KEYS[0]]} \n\n"
+        f"{TARGET_2} finger: {key_color_mapping[TARGET_2_KEYS[0]]}",
 
         "Respond as quickly and accurately as possible",
         

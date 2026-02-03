@@ -15,11 +15,10 @@ from BreathingCerebellOPM import (
     )
 
 key_color_mapping = {
-    "b": "blue",
-    "r": "red",
-    "y": "yellow",
-    "g": "green"
+    "1": "blue",
+    "2": "yellow",
 }
+
 """
 def show_instructions(win, instructions: list[str], color="white"):
 
