@@ -1,27 +1,33 @@
-import pygame
+import tkinter as tk
 
 class FixationDisplay:
-    def __init__(self, size=(800, 600)):
-        pygame.init()
-        self.screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-        self.white = (255, 255, 255)
-        self.black = (0, 0, 0)
-        self.center = (size[0] // 2, size[1] // 2)
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.attributes("-fullscreen", True)
+        self.root.configure(bg="black")
+        self.root.bind("<Escape>", lambda e: self.close())
 
-    def show_fixation(self, color=(255, 255, 255)):
-        self.screen.fill(self.black)
+        self.canvas = tk.Canvas(self.root, bg="black", highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
+
+        self.root.update()
+        w = self.root.winfo_width()
+        h = self.root.winfo_height()
+        self.center = (w // 2, h // 2)
+
+    def show_fixation(self, color="white"):
+        self.canvas.delete("all")
         x, y = self.center
-        pygame.draw.line(self.screen, color, (x, y-20), (x, y+20), 4)
-        pygame.draw.line(self.screen, color, (x-20, y), (x+20, y), 4)
-        pygame.display.flip()
+        size = 20
+        self.canvas.create_line(x, y-size, x, y+size, fill=color, width=3)
+        self.canvas.create_line(x-size, y, x+size, y, fill=color, width=3)
+        self.root.update()
 
     def show_text(self, text):
-        font = pygame.font.SysFont(None, 40)
-        surf = font.render(text, True, self.white)
-        rect = surf.get_rect(center=self.center)
-        self.screen.fill(self.black)
-        self.screen.blit(surf, rect)
-        pygame.display.flip()
+        self.canvas.delete("all")
+        x, y = self.center
+        self.canvas.create_text(x, y, text=text, fill="white", font=("Arial", 28))
+        self.root.update()
 
     def close(self):
-        pygame.quit()
+        self.root.destroy()
