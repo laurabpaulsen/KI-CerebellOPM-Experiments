@@ -54,7 +54,7 @@ def show_instructions(win, instructions: list[str], color="white"):
         input("Press any key to continue to the next page...")
 
 """
-def get_start_intensities(return_weak: bool = True) -> dict[str, float]:
+def get_start_intensities(return_weak: bool = True):
     print("Please enter the starting intensities for BreathingCerebellum practice rounds.")
 
     while True:
