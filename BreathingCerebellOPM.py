@@ -16,44 +16,21 @@ import numpy as np
 
 from utils.params import connectors, win
 from utils.quest_controller import QuestController
-
-
-
-
 import os
-if os.name == "posix":
-    from utils.responses import KeyboardListener
-    from utils.triggers import setParallelData
-    print("Using KeyboardListener for response collection.")
-else:
-    from utils.responses_nidaqmx import NIResponsePad
-    from utils.triggers_nidaqmx import setParallelData
 
+from utils.responses import KeyboardListener
+from utils.triggers import setParallelDataSQUID
+from utils.responses_nidaqmx import NIResponsePad
+from utils.triggers_nidaqmx import setParallelDataOPM
 
-## REMEMBER TO REMOVE THESE!!
-class NIResponsePad:
-        # WORKS: CONCLUSION IS THE TRACE TRAP IS SOME KIND OF INTERACTION BETWEEN PYNPUT AND PSYCHOPY ON MACOS
-        def __init__(self, **kwargs): pass
-        def start_listener(self): pass
-        def stop_listener(self): pass
-        def get_response(self): return None
-        def reset_response(self): pass
-
-## REMEMBER TO REMOVE THESE!!
-class KeyboardListener:
-        # WORKS: CONCLUSION IS THE TRACE TRAP IS SOME KIND OF INTERACTION BETWEEN PYNPUT AND PSYCHOPY ON MACOS
-        def __init__(self, **kwargs): pass
-        def start_listener(self): pass
-        def stop_listener(self): pass
-        def get_response(self): return None
-        def reset_response(self): pass
+print("Using KeyboardListener for response collection.")
 
 
 # ------------------- #
 # CONFIG
 # ------------------- #
-N_REPEATS_BLOCKS = 4
-N_SEQUENCE_BLOCKS =1 #8
+N_REPEATS_BLOCKS = 5
+N_SEQUENCE_BLOCKS = 6
 RESET_QUEST = 2 # how many blocks before resetting QUEST
 ISIS = [1.29, 1.44, 1.57, 1.71] 
 VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
@@ -557,7 +534,8 @@ class MiddleIndexTactileDiscriminationTask:
         self.listener.stop_listener()  # Stop the keyboard listener
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
+        setParallelDataOPM(trigger)
+        setParallelDataSQUID(trigger)
 
 
     def ask_for_update_intensity(self):
@@ -691,7 +669,7 @@ def print_experiment_information(experiment):
     print(f"Estimated total duration: {duration/60:.1f} minutes ({duration:.0f} seconds)")
     experiment.setup_experiment()
 
-    """
+    
     # Extract event_type from each dictionary
     event_types = [e.get("event_type") for e in experiment.events if isinstance(e, dict)]
 
@@ -716,7 +694,7 @@ def print_experiment_information(experiment):
     print("\nTransition counts:")
     for (a, b), count in transition_counts.items():
         print(f"  ({a} -> {b}): {count}")
-    """
+    
 
 def get_participant_info():
     pid = input("Enter participant ID: ").strip()

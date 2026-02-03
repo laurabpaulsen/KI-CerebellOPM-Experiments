@@ -4,8 +4,15 @@ Description: Trigger interface using NI-DAQmx instead of parallel port.
 
 # -*- coding: utf-8 -*-
 
-import nidaqmx
 import time
+import platform
+
+USE_NIDAQ = platform.system() == "Windows"
+
+if USE_NIDAQ:
+    import nidaqmx
+    from nidaqmx.constants import LineGrouping
+
 
 
 # ---- CONFIGURE THIS ----
@@ -14,35 +21,39 @@ PULSE_WIDTH = 0.005 # seconds (5 ms)
 # -------------------------
 
 
-# Global task (initialized once)
 _trigger_task = None
 
 
 def _init_task():
-    """Create the NI-DAQmx digital output task once."""
     global _trigger_task
-    if _trigger_task is None:
+
+    if _trigger_task is not None:
+        return
+
+    if USE_NIDAQ:
         _trigger_task = nidaqmx.Task()
         _trigger_task.do_channels.add_do_chan(
             CHANNEL,
-            line_grouping=nidaqmx.constants.LineGrouping.CHAN_FOR_ALL_LINES
+            line_grouping=LineGrouping.CHAN_FOR_ALL_LINES
         )
-        print(f"NI-DAQmx trigger task initialised on {CHANNEL}.")
+        print(f"[NI] Trigger task initialised on {CHANNEL}")
+    else:
+        print("[MOCK] NI-DAQ not available — using fake triggers.")
+        _trigger_task = "MOCK"
 
-
-def setParallelData(code):
-    """
-    Send an 8-bit trigger vector via NI-DAQmx.
-    bitlist example: [1,0,0,0,0,0,0,0]
-    """
+        
+def setParallelDataOPM(code=1):
     _init_task()
 
-    _trigger_task.write(code, auto_start=True)
-    time.sleep(PULSE_WIDTH)
-
-    # Back to zero
-    _trigger_task.write([False] * 8, auto_start=True)
-
+    if USE_NIDAQ:
+        _trigger_task.write(code, auto_start=True)
+        time.sleep(PULSE_WIDTH)
+        _trigger_task.write([False] * 8, auto_start=True)
+    else:
+        # Fake trigger behaviour
+        timestamp = time.perf_counter()
+        print(f"[MOCK TRIGGER] {timestamp:.6f}  CODE={code}")
+        time.sleep(PULSE_WIDTH)
 
 
 def create_trigger_mapping(

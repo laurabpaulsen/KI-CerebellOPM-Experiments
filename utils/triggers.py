@@ -13,36 +13,12 @@ try:
     port.setData(1)
 except NotImplementedError:
     print(f"Parallel port {port} not implemented???.")
-    def setParallelData(code=1):
+    def setParallelDataSQUID(code=1):
         if code > 0:
             # logging.exp('TRIG %d (Fake)' % code)
             print('TRIG %d (Fake)' % code)
             pass
 else:
     port.setData(0)
-    setParallelData = port.setData
+    setParallelDataSQUID = port.setData
 
-def create_trigger_mapping(
-        stim = 1,
-        target = 2,
-        middle = 4,
-        index = 8,
-        response = 16,
-        correct = 32,
-        incorrect = 64):
-    
-    trigger_mapping = {
-        "stim/salient": stim,
-        "target/middle": target + middle,
-        "target/index": target + index,
-        "response/index/correct": response + index + correct,
-        "response/middle/incorrect": response + middle + incorrect,
-        "response/middle/correct": response + middle + correct,
-        "response/index/incorrect": response + index + incorrect,
-        "break/start": 128,
-        "break/end": 129,
-        "experiment/start": 254,
-        "experiment/end": 255
-        }
-
-    return trigger_mapping

@@ -12,14 +12,13 @@ import numpy as np
 import copy
 
 import os
-if os.name == "posix":
-    from utils.responses import KeyboardListener
-    from utils.triggers import setParallelData
-else:
-    from utils.responses_nidaqmx import NIResponsePad
-    from utils.triggers_nidaqmx import setParallelData
 
-from psychopy import visual
+
+from utils.responses import KeyboardListener
+from utils.triggers import setParallelDataSQUID
+#from utils.responses_nidaqmx import NIResponsePad
+from utils.triggers_nidaqmx import setParallelDataOPM
+
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
@@ -203,7 +202,8 @@ class ExpectationExperiment:
             self.win.flip()
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
+        setParallelDataOPM(trigger)
+        setParallelDataSQUID(trigger)
         
     def calculate_duration(self, response_time: float = 1.0) -> float:
         """
