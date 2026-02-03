@@ -20,7 +20,7 @@ key_color_mapping = {
     "y": "yellow",
     "g": "green"
 }
-    """
+"""
 def show_instructions(win, instructions: list[str], color="white"):
 
     Display instructions on a PsychoPy window.
