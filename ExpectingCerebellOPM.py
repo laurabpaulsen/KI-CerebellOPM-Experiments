@@ -193,7 +193,7 @@ class ExpectationExperiment:
         self.blocks = all_blocks
 
     
-    def show_fixation(self, color=[1, 1, 1]):
+    def show_fixation(self, color="white"):
         self.display.show_fixation(color=color)
 
 
