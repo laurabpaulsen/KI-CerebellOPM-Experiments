@@ -14,9 +14,9 @@ if os.name == "posix":
     index_connector_port = "/dev/tty.usbserial-A50027ER"
 
     connectors = {
-        #"middle": SGCConnector(port=middle_connector_port, intensity_codes_path=path / "intensity_code.csv", start_intensity=1),
+        "middle": SGCConnector(port=middle_connector_port, intensity_codes_path=path / "intensity_code.csv", start_intensity=1),
         "index": SGCConnector(port=index_connector_port, intensity_codes_path=path / "intensity_code.csv", start_intensity=1),  
-        "middle": SGCFakeConnector(intensity_codes_path=path / "intensity_code.csv", start_intensity=1),
+        #"middle": SGCFakeConnector(intensity_codes_path=path / "intensity_code.csv", start_intensity=1),
         #"index": SGCFakeConnector(intensity_codes_path=path / "intensity_code.csv", start_intensity=1)
         }
 else:
