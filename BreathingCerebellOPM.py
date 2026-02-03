@@ -177,11 +177,7 @@ class MiddleIndexTactileDiscriminationTask:
         
 
         self.win = None
-        if self.win is not None:
-
-            from psychopy import visual
-            self.fixation = visual.TextStim(self.win, text='+', height=0.1)
-            self.break_message = visual.TextStim(self.win, text='Time for a break!', height=0.05)
+       
         
         self.practice_mode = practice_mode    
         

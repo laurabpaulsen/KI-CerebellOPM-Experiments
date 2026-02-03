@@ -7,7 +7,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from utils.params import connectors
-from psychopy import visual
 
 from BreathingCerebellOPM import (
     MiddleIndexTactileDiscriminationTask, RESET_QUEST,
@@ -21,9 +20,9 @@ key_color_mapping = {
     "y": "yellow",
     "g": "green"
 }
-
-def show_instructions(win, instructions: list[str], color="white"):
     """
+def show_instructions(win, instructions: list[str], color="white"):
+
     Display instructions on a PsychoPy window.
 
     Parameters
@@ -36,7 +35,7 @@ def show_instructions(win, instructions: list[str], color="white"):
         Text color.
     key_to_continue : str
         The key the participant must press to continue to the next page.
-    """
+    
     if not instructions:
         return
     
@@ -54,7 +53,7 @@ def show_instructions(win, instructions: list[str], color="white"):
         # Wait for participant key press
         input("Press any key to continue to the next page...")
 
-
+"""
 def get_start_intensities(return_weak: bool = True) -> dict[str, float]:
     print("Please enter the starting intensities for BreathingCerebellum practice rounds.")
 
