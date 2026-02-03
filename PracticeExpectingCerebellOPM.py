@@ -13,12 +13,16 @@ from ExpectingCerebellOPM import (
 )
 from BreathingCerebellOPM import (
     TARGET_1, TARGET_1_KEYS,
-    TARGET_2, TARGET_2_KEYS,
-    key_color_mapping
+    TARGET_2, TARGET_2_KEYS
     )
 
 from PracticeBreathingCerebellOPM import get_start_intensities
 
+key_color_mapping = {
+    "1": "blue",
+    "2": "yellow",
+
+}
 
 # Show practice instructions
 practice_instructions = [
