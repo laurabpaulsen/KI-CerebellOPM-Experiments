@@ -119,7 +119,7 @@ class ExpectationExperiment:
             self.listener = NIResponsePad(
                 device="Dev1",
                 port="port6",
-                num_lines=4,
+                num_lines=2,
                 mapping=line_to_label,
                 poll_interval_s=0.0005,
                 debounce_ms=30,

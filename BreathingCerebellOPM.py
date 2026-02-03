@@ -156,7 +156,7 @@ class MiddleIndexTactileDiscriminationTask:
             self.listener = NIResponsePad(
                 device="Dev1",
                 port="port6",
-                num_lines=4,
+                num_lines=2,
                 mapping={
                     0: 'b',  
                     1: 'y', 
