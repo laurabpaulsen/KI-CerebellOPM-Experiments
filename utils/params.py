@@ -1,7 +1,7 @@
 import os
 from .SGC_connector import SGCConnector, SGCFakeConnector
 from pathlib import Path
-from psychopy import visual, monitors
+#from psychopy import visual, monitors
 
 path = Path(__file__).parents[1] 
 
@@ -27,7 +27,7 @@ else:
             "index": SGCConnector(port=index_connector_port, intensity_codes_path=path / "intensity_code.csv", start_intensity=1)
         }
 
-
+"""
 monitor = monitors.Monitor('testMonitor')  # you can change 'testMonitor' to your monitor name
 monitor.setDistance(60)  # set the viewing distance in cm
 monitor.setSizePix((1920, 1080))  # set the resolution of your monitor
@@ -41,3 +41,5 @@ win = visual.Window(
     screen=1,
     checkTiming=False
     )
+
+"""

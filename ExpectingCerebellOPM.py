@@ -21,6 +21,8 @@ from utils.triggers_nidaqmx import setParallelData
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
+
+
 from BreathingCerebellOPM import (
     VALID_INTENSITIES, STIM_DURATION, 
     TARGET_1, TARGET_1_KEYS,
@@ -28,7 +30,9 @@ from BreathingCerebellOPM import (
     )
 
 from utils.params import connectors#, win
-win=None
+
+from utils.fixation_display import FixationDisplay
+
 
 
 ISI=0.701  # seconds
@@ -94,14 +98,9 @@ class ExpectationExperiment:
         self.intensity = intensity
         self.win = win
 
-        if self.win is not None:
-
-
-            from psychopy import visual
-            self.fixation = visual.TextStim(self.win, text='+', height=0.1)
-            self.break_message = visual.TextStim(self.win, text='Time for a break!', height=0.05)
-            self.env_change_message = visual.TextStim(self.win, text='The statistical regularites between the first and the second stimulus may have changed now! Take a little break.', height=0.05)
-
+        self.display = FixationDisplay()
+        self.break_message = 'Time for a break!'
+        self.env_change_message = 'The statistical regularites between the first and the second stimulus may have changed now! Take a little break.'
         # Map lines to response labels used by the experiment.
         line_to_label = {
             0: "b", # blue
@@ -195,12 +194,9 @@ class ExpectationExperiment:
 
     
     def show_fixation(self, color=[1, 1, 1]):
-            if self.win is None:
-                return
+        self.display.show_fixation(color=color)
 
-            self.fixation.color = color
-            self.fixation.draw()
-            self.win.flip()
+
 
     def raise_and_lower_trigger(self, trigger):
         setParallelData(trigger)
@@ -248,8 +244,7 @@ class ExpectationExperiment:
                     # break in the middle of the block
                     if i == len(block)//2 and not self.practise_mode:
                         # break message
-                        self.break_message.draw()
-                        self.win.flip()
+                        self.display.show_text(self.break_message)
                         self.check_in_on_participant("Halfway through the block. Check in on the participant.", ask_for_update=False)
                         self.show_fixation()
 
@@ -286,8 +281,7 @@ class ExpectationExperiment:
 
                 # present env change message between blocks
                 if not self.practise_mode and i_block < len(self.blocks) - 1:
-                    self.env_change_message.draw()
-                    self.win.flip()
+                    self.display.show_text(self.env_change_message)
                     self.check_in_on_participant("Starting new block. Check in on the participant.", ask_for_update=True)
 
 
