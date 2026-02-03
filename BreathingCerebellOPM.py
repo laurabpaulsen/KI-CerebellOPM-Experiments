@@ -20,9 +20,8 @@ from utils.quest_controller import QuestController
 import os
 
 from utils.responses import KeyboardListener
-from utils.triggers import setParallelDataSQUID
 from utils.responses_nidaqmx import NIResponsePad
-from utils.triggers_nidaqmx import setParallelDataOPM
+from utils.triggers_nidaqmx import setParallelData
 
 print("Using KeyboardListener for response collection.")
 
@@ -535,9 +534,7 @@ class MiddleIndexTactileDiscriminationTask:
         self.listener.stop_listener()  # Stop the keyboard listener
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelDataOPM(trigger)
-        setParallelDataSQUID(trigger)
-
+        setParallelData(trigger)
 
     def ask_for_update_intensity(self):
         # possiblility to update intensities after practice

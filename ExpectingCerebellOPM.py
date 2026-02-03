@@ -15,9 +15,8 @@ import os
 
 
 from utils.responses import KeyboardListener
-from utils.triggers import setParallelDataSQUID
-#from utils.responses_nidaqmx import NIResponsePad
-from utils.triggers_nidaqmx import setParallelDataOPM
+from utils.responses_nidaqmx import NIResponsePad
+from utils.triggers_nidaqmx import setParallelData
 
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
@@ -203,8 +202,8 @@ class ExpectationExperiment:
             self.win.flip()
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelDataOPM(trigger)
-        setParallelDataSQUID(trigger)
+        setParallelData(trigger)
+
         
     def calculate_duration(self, response_time: float = 1.0) -> float:
         """
