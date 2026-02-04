@@ -139,7 +139,7 @@ if __name__ == "__main__":
     experiment.check_in_on_participant(message="Ready to begin practice block.")
 
     # clear the window before starting
-    experiment.trial_block(ISI=1.5, n_sequences=6, debug=False)
+    experiment.trial_block(ISI=1.5, n_sequences=6)
 
     # possiblility to update intensities after first practice
     while True:
