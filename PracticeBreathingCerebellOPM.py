@@ -7,6 +7,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from utils.params import connectors
+from utils.quest_controller import QuestController
 
 from BreathingCerebellOPM import (
     MiddleIndexTactileDiscriminationTask, RESET_QUEST,
@@ -93,16 +94,17 @@ if __name__ == "__main__":
         connector.set_pulse_duration(STIM_DURATION)
         connector.change_intensity(start_intensities["salient"])
 
+    quest_controller = QuestController(start_val=start_intensities["weak"], max_weak=start_intensities["salient"] - 0.3, target=0.75)
 
     experiment = MiddleIndexTactileDiscriminationTask(
-        intensities=start_intensities,
+        salient_intensity=start_intensities["salient"],
         n_sequences=1,
         order = [0],
-        QUEST_plus=False,
         reset_QUEST=RESET_QUEST, # reset QUEST every x blocks
         ISIs=[1.5],
         trigger_mapping=create_trigger_mapping(),
         send_trigger=False,
+        quest_controller=quest_controller,
         logfile = None,
         SGC_connectors=connectors,
         practice_mode=True,
@@ -131,8 +133,8 @@ if __name__ == "__main__":
         "If you are unsure which finger received the target, make your best guess.",
     ]
 
-    for instruction in practice_instructions:
-        show_instructions(win, [instruction])
+    #for instruction in practice_instructions:
+    #    show_instructions(win, [instruction])
 
     experiment.check_in_on_participant(message="Ready to begin practice block.")
 
@@ -175,8 +177,8 @@ if __name__ == "__main__":
         "Please continue to indicate which finger received the target stimulus by pressing the corresponding key.",
         "Remember to respond as quickly as possible after the target stimulus.",
     ]
-    for instruction in practice_instructions:
-        show_instructions(win, [instruction])
+    #for instruction in practice_instructions:
+    #    show_instructions(win, [instruction])
 
     experiment.trial_block(ISI=1.3, n_sequences=6)
 
