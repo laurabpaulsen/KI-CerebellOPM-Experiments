@@ -18,7 +18,7 @@ if USE_NIDAQ:
 # ---- CONFIGURE THIS ----
 CHANNEL_OPM = "Dev1/port9/line0:7"   # All 8 lines of port 9
 CHANNEL_SQUID = "Dev1/port0/line0:7"  # All 8 lines of port 0
-PULSE_WIDTH = 0.005 # seconds (5 ms)
+PULSE_WIDTH = 0.02 # seconds (20 ms)
 # -------------------------
 
 
