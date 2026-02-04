@@ -105,8 +105,6 @@ class ExpectationExperiment:
         line_to_label = {
             0: "b", # blue
             1: "y", # yellow
-            2: "g", # green
-            3: "r", # red
         }
         if os.name == "posix":
             valid_keys = list(response_keys[TARGET_1]) + list(response_keys[TARGET_2])
