@@ -106,7 +106,6 @@ if __name__ == "__main__":
         logfile = None,
         SGC_connectors=connectors,
         practice_mode=True,
-        win = win
     )
 
     # Show practice instructions
