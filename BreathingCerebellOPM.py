@@ -174,7 +174,7 @@ class MiddleIndexTactileDiscriminationTask:
         
         
         self.QUEST = quest_controller        
-        self.display = FixationDisplay(screen_index=1) 
+        self.display = FixationDisplay(screen_index=0) 
     
         self.practice_mode = practice_mode    
         
