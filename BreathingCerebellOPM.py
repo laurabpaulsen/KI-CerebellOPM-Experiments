@@ -412,7 +412,7 @@ class MiddleIndexTactileDiscriminationTask:
                 self.QUEST.add_response(np.random.choice([0, 1]), intensity=intensity)
 
         # change fixation back to white at the end of the block
-        self.show_fixation(color=[1, 1, 1]) 
+        self.show_fixation(color="white") 
 
     def log_event(self, event_time="NA", block="NA", ISI="NA", intensity="NA", event_type="NA", trigger="NA", n_in_block="NA", correct="NA", reset_QUEST="NA", rt="NA", log_file=None):
         if log_file:
