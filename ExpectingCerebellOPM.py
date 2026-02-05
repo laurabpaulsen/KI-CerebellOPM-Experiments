@@ -11,10 +11,6 @@ from typing import Union
 import numpy as np
 import copy
 
-import os
-
-
-from utils.responses import KeyboardListener
 from utils.responses_nidaqmx import NIResponsePad
 from utils.triggers_nidaqmx import setParallelData
 
@@ -63,7 +59,6 @@ class ExpectationExperiment:
             TARGET_2: TARGET_2_KEYS,
         },
         practise_mode: bool = False,
-        win=None,
         intensity: float = 2.5,
         ):
         """
@@ -96,7 +91,6 @@ class ExpectationExperiment:
         self.send_trigger = send_trigger
         self.practise_mode = practise_mode
         self.intensity = intensity
-        self.win = win
 
         self.display = FixationDisplay(screen_index=0)
         self.break_message = 'Time for a break!'
@@ -106,24 +100,16 @@ class ExpectationExperiment:
             0: "b", # blue
             1: "y", # yellow
         }
-        if os.name == "posix":
-            valid_keys = list(response_keys[TARGET_1]) + list(response_keys[TARGET_2])
-            self.listener = KeyboardListener(
-                valid_keys=valid_keys,
-                active=True
-            )
-
-        else:
-            self.listener = NIResponsePad(
-                device="Dev1",
-                port="port6",
-                num_lines=2,
-                mapping=line_to_label,
-                poll_interval_s=0.0005,
-                debounce_ms=30,
-                timestamp_responses=False,
-            )
-
+        
+        self.listener = NIResponsePad(
+            device="Dev1",
+            port="port6",
+            num_lines=2,
+            mapping=line_to_label,
+            poll_interval_s=0.0005,
+            debounce_ms=30,
+            timestamp_responses=False,
+        )
         self.response_keys = response_keys
         self.prep_events()
 
@@ -419,9 +405,7 @@ if __name__ in "__main__":
         rng_interval = RNG_INTERVAL,
         n_repeats_per_block = 2,
         outpath=outpath,
-        intensity=intensity,
-        win=None,
-
+        intensity=intensity
     )
 
     average_rt = 0.9  # average response time in seconds

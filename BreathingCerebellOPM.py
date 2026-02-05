@@ -16,15 +16,12 @@ import numpy as np
 
 from utils.params import connectors
 from utils.quest_controller import QuestController
-import os
 
-from utils.responses import KeyboardListener
 from utils.responses_nidaqmx import NIResponsePad
 from utils.triggers_nidaqmx import setParallelData
 
 from utils.fixation_display import FixationDisplay
 
-print("Using KeyboardListener for response collection.")
 
 
 # ------------------- #
@@ -145,26 +142,18 @@ class MiddleIndexTactileDiscriminationTask:
         self.target_2 = target_2
 
 
-        if os.name == "posix":
-            valid_keys = list(set(target_1_keys + target_2_keys))
-            self.listener = KeyboardListener(
-                valid_keys=valid_keys,
-                active=True
-            )
-
-        else:
-            self.listener = NIResponsePad(
-                device="Dev1",
-                port="port6",
-                num_lines=2,
-                mapping={
-                    0: 'b',  
-                    1: 'y', 
-                },
-                poll_interval_s=0.0005,
-                debounce_ms=50,
-                timestamp_responses=False
-            )
+        self.listener = NIResponsePad(
+            device="Dev1",
+            port="port6",
+            num_lines=2,
+            mapping={
+                0: 'b',  
+                1: 'y', 
+            },
+            poll_interval_s=0.0005,
+            debounce_ms=50,
+            timestamp_responses=False
+        )
         print(self.listener)
 
         self.keys_target = {
