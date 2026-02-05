@@ -67,29 +67,3 @@ def setParallelData(code=1):
         timestamp = time.perf_counter()
         print(f"[MOCK TRIGGER] {timestamp:.6f}  CODE={code}")
         time.sleep(PULSE_WIDTH)
-
-
-def create_trigger_mapping(
-        stim = 1,
-        target = 2,
-        middle = 4,
-        index = 8,
-        response = 16,
-        correct = 32,
-        incorrect = 64):
-    
-    trigger_mapping = {
-        "stim/salient": stim,
-        "target/middle": target + middle,
-        "target/index": target + index,
-        "response/index/correct": response + index + correct,
-        "response/middle/incorrect": response + middle + incorrect,
-        "response/middle/correct": response + middle + correct,
-        "response/index/incorrect": response + index + incorrect,
-        "break/start": 128,
-        "break/end": 129,
-        "experiment/start": 254,
-        "experiment/end": 255
-        }
-
-    return trigger_mapping
