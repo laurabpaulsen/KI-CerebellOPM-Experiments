@@ -21,10 +21,10 @@ from PracticeBreathingCerebellOPM import get_start_intensities, key_color_mappin
 # Show practice instructions
 practice_instructions = [
         "In this part of the experiment, you will feel tactile stimuli on your index and middle fingers.",
-        
-        "Your task is to identify whether the last stimulus in pair of stimuli was on your index finger or middle finger.",
-        
-        "The first stimulus somewhat predicts which finger will receive the second stimulus. \n\n\n." 
+        "You will be presented with two stimuli in quick succession, and your task \n is to identify whether the second stimulus was on your index finger or middle finger.",
+    
+        "The first stimulus is predictive of what finger will receive the second stimulus. \n\n\n.",
+
         "However, sometimes the second stimulus will be on the other finger than expected.",
 
         "Indicate which finger received the second stimulus by pressing the corresponding key. \n\n\n"
