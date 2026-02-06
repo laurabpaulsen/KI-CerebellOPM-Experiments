@@ -238,14 +238,14 @@ class MiddleIndexTactileDiscriminationTask:
             for c in self.SGC_connectors.values():
                 c.change_intensity(new)
 
-        self.QUEST.update_max_weak(new - self.QUEST.diff)
+        self.QUEST.update_max_weak(new - DIFF_SALIENT_WEAK)
 
 
     
     def trig_break_start(self, log_file=None):
         if self.send_trigger:
             self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
-            # also log the event¨
+
             if log_file:
                 self.log_event(
                     event_time=time.perf_counter() - self.start_time,
