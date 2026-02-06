@@ -14,15 +14,15 @@ TARGET_2_KEYS = ["2", "y"]
 
 # Params for BreathingCerebellOPM
 DIFF_SALIENT_WEAK = 0.3  # difference between salient and weak intensity
-N_REPEATS_BLOCKS = 5
-N_SEQUENCE_BLOCKS = 6
+N_REPEATS_BLOCKS = 2#5
+N_SEQUENCE_BLOCKS = 2#6
 RESET_QUEST = 2 # how many blocks before resetting QUEST
 ISIS = [1.29, 1.44, 1.57, 1.71] 
 
 # Params for ExpectingCerebellOPM
 ISI=0.701  # seconds
 RNG_INTERVAL=(1., 1.25)  # seconds
-N_EVENTS_PER_BLOCK=160  # number of stimulus pairs per block
+N_EVENTS_PER_BLOCK=10#160  # number of stimulus pairs per block
 
 
 
