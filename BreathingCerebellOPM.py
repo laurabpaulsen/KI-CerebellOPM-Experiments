@@ -14,12 +14,17 @@ import time
 
 import numpy as np
 
-from utils.params import connectors
-from utils.quest_controller import QuestController
+from utils.params import (
+    STIM_DURATION, VALID_INTENSITIES, DIFF_SALIENT_WEAK,
+    TARGET_1, TARGET_1_KEYS, 
+    TARGET_2, TARGET_2_KEYS, 
+    RESET_QUEST, N_REPEATS_BLOCKS, N_SEQUENCE_BLOCKS, ISIS,
+    connectors
+)
 
+from utils.quest_controller import QuestController
 from utils.responses_nidaqmx import NIResponsePad
 from utils.triggers_nidaqmx import setParallelData
-
 from utils.fixation_display import FixationDisplay
 
 
@@ -27,21 +32,11 @@ from utils.fixation_display import FixationDisplay
 # ------------------- #
 # CONFIG
 # ------------------- #
-N_REPEATS_BLOCKS = 5
-N_SEQUENCE_BLOCKS = 6
-RESET_QUEST = 2 # how many blocks before resetting QUEST
-ISIS = [1.29, 1.44, 1.57, 1.71] 
-VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
-STIM_DURATION = 100  # 0.1 ms
-DIFF_SALIENT_WEAK = 0.3  # difference between salient and weak intensity
+
 
 OUTPUT_PATH = Path(__file__).parent / "output" / "BreathingCerebellOPM"
 OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
-TARGET_1 = "index"
-TARGET_2 = "middle"
-TARGET_1_KEYS = ["1", "b"]
-TARGET_2_KEYS = ["2", "y"]
 
 
 def create_trigger_mapping( stim = 1, target = 2, middle = 4, index = 8,response = 16, correct = 32, incorrect = 64):

@@ -18,22 +18,16 @@ from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
 
-
-from BreathingCerebellOPM import (
+from utils.params import (
     VALID_INTENSITIES, STIM_DURATION, 
     TARGET_1, TARGET_1_KEYS,
     TARGET_2, TARGET_2_KEYS,
-    )
-
-from utils.params import connectors
+    N_EVENTS_PER_BLOCK, RNG_INTERVAL, ISI,
+    connectors
+)
 
 from utils.fixation_display import FixationDisplay
 
-
-
-ISI=0.701  # seconds
-RNG_INTERVAL=(1., 1.25)  # seconds
-N_EVENTS_PER_BLOCK=160  # number of stimulus pairs per block
 
 OUTPATH = Path(__file__).parent / "output" / "ExpectingCerebellOPM"
 
@@ -371,7 +365,11 @@ def create_trigger_mapping(response_bit = 1, second_bit = 2, expected_bit = 4, r
 
         # BREAKS
         "break/start": break_bit_start,
-        "break/end": break_bit_end
+        "break/end": break_bit_end,
+        
+        # EXPERIMENT START/END
+        "experiment/start": 254,
+        "experiment/end": 255
     }
 
     return trigger_mapping
@@ -413,6 +411,15 @@ if __name__ in "__main__":
     print(f"Estimated active duration: {duration/60} minutes with a response time of {average_rt} seconds.")
     experiment.show_fixation()
     input("Press Enter to begin the experiment...")
+
+
+    if experiment.send_trigger:
+        experiment.raise_and_lower_trigger(trigger_mapping["experiment/start"])
+
     experiment.run()
+
+
+    if experiment.send_trigger:
+        experiment.raise_and_lower_trigger(trigger_mapping["experiment/end"])
 
     

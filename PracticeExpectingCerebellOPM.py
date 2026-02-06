@@ -6,23 +6,17 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
-from utils.params import connectors
+from ExpectingCerebellOPM import ExpectationExperiment, create_trigger_mapping
 
-from ExpectingCerebellOPM import (
-    ExpectationExperiment, STIM_DURATION, create_trigger_mapping, RNG_INTERVAL, ISI
-)
-from BreathingCerebellOPM import (
+from utils.params import (
     TARGET_1, TARGET_1_KEYS,
-    TARGET_2, TARGET_2_KEYS
-    )
+    TARGET_2, TARGET_2_KEYS,
+    STIM_DURATION,  RNG_INTERVAL, ISI,
+    connectors
+)
 
-from PracticeBreathingCerebellOPM import get_start_intensities
+from PracticeBreathingCerebellOPM import get_start_intensities, key_color_mapping
 
-key_color_mapping = {
-    "1": "blue",
-    "2": "yellow",
-
-}
 
 # Show practice instructions
 practice_instructions = [
@@ -43,7 +37,7 @@ practice_instructions = [
     ]
 
 
-if __name__ in "__main__":
+if __name__ == "__main__":
 
     print("This is for running the practice rounds of the EXPECTATION experiment.\n")
     intensity = get_start_intensities(return_weak=False)["salient"]
@@ -61,10 +55,13 @@ if __name__ in "__main__":
         n_events_per_block = 8,
         rng_interval =  RNG_INTERVAL,
         n_repeats_per_block = 10,
-        prop_expected_unexpected=[0.5, 0.5], # no statistical regularities in practice
+        prop_expected_unexpected=[0.5, 0.5], 
         outpath=None,
         practise_mode=True,
         send_trigger=False
     )
     
+    
+    experiment.display.show_instructions(practice_instructions)
+
     experiment.run()
