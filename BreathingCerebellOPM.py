@@ -294,9 +294,9 @@ class MiddleIndexTactileDiscriminationTask:
         for i, trial in enumerate(events):
             if trial == "break":
                 self.trig_break_start(log_file=log_file)
-                if win is not None:
-                    self.break_message.draw()
-                    self.win.flip()
+                
+                self.display.show_text("Take a break!")
+
                 self.check_in_on_participant()
                 self.ask_for_update_intensity()
                 self.show_fixation()
