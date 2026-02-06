@@ -41,6 +41,15 @@ class FixationDisplay:
         x, y = self.center
         self.canvas.create_text(x, y, text=text, fill="white", font=("Arial", 28))
         self.root.update()
+    
+
+    def show_instructions(self, instructions: list[str]):
+        if not instructions:
+            return
+        
+        for page in instructions:
+            self.show_text(page)
+            input("Press any key to continue to the next page of the instructions...")
 
     def close(self):
         self.root.destroy()
