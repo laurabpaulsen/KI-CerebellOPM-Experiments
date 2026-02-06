@@ -70,7 +70,7 @@ practice_instructions_1 = [
     "Respond as quickly as possible, before the next sequence begins and the fixation cross turns white again.",
         
     "If you are unsure which finger received the target, make your best guess.",
-    "The stimulations will be very weak, so it's normal to find it difficult to decide which finger received the target. Just try your best to respond based on what you feel.",
+    "The stimulations will be very weak, so it's normal to find it difficult to decide which finger received the target. \nJust try your best to respond based on what you feel.",
     ]
 
 practice_instructions_2 = [
