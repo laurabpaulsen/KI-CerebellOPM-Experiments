@@ -55,15 +55,11 @@ def get_start_intensities(return_weak: bool = True):
     
 
 practice_instructions_1 = [
-    "In this part of the experiment, you will feel tactile stimuli on your index and middle fingers.",
-        
-    "Your task is to identify whether the last stimulus in each sequence was on your index finger or middle finger.",
-        
+    "In this part of the experiment, you will feel electrical stimulations on your index and middle fingers.",
+    
     "Each sequence begins with three rhythm-establishing stimuli. These are salient and presented to both fingers.",
-        
-    "During this time, the fixation cross will stay white.",
-        
-    "Next, a weaker target stimulus will be delivered to one finger only.",
+    "During this time, the fixation cross will stay white.",    
+    "Following these, a weaker target stimulus will be delivered to either your index or middle finger.",
         
     "When the target appears, the fixation cross will turn green.",
 
@@ -74,6 +70,7 @@ practice_instructions_1 = [
     "Respond as quickly as possible, before the next sequence begins and the fixation cross turns white again.",
         
     "If you are unsure which finger received the target, make your best guess.",
+    "The stimulations will be very weak, so it's normal to find it difficult to decide which finger received the target. Just try your best to respond based on what you feel.",
     ]
 
 practice_instructions_2 = [
