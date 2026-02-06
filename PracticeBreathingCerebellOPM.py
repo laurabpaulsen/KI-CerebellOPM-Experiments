@@ -65,7 +65,8 @@ practice_instructions_1 = [
 
     "Indicate which finger received the target by pressing the corresponding key. \n\n\n"
     f"{TARGET_1} finger: {key_color_mapping[TARGET_1_KEYS[0]]} \n\n"
-    f"{TARGET_2} finger: {key_color_mapping[TARGET_2_KEYS[0]]}",
+    f"{TARGET_2} finger: {key_color_mapping[TARGET_2_KEYS[0]]}\n\n"
+    "Always use your index finger to respond.",
 
     "Respond as quickly as possible, before the next sequence begins and the fixation cross turns white again.",
         
