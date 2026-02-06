@@ -43,7 +43,7 @@ class FixationDisplay:
         self.root.update()
     
 
-    def show_instructions(self, instructions: list[str]):
+    def show_instructions(self, instructions):
         if not instructions:
             return
         
