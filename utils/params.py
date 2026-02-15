@@ -17,7 +17,7 @@ DIFF_SALIENT_WEAK = 0.3  # difference between salient and weak intensity
 N_REPEATS_BLOCKS = 5
 N_SEQUENCE_BLOCKS = 6
 RESET_QUEST = 2 # how many blocks before resetting QUEST
-ISIS = [1.29, 1.44, 1.57, 1.71] 
+ISIS = [1.31, 1.44, 1.57, 1.69] 
 
 # Params for ExpectingCerebellOPM
 ISI=0.701  # seconds
