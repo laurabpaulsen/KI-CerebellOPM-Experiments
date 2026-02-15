@@ -55,7 +55,7 @@ if __name__ == "__main__":
         connectors=connectors,
         n_events_per_block = 8,
         rng_interval =  RNG_INTERVAL,
-        n_repeats_per_block = 10,
+        n_repeats_per_block = 1,
         prop_expected_unexpected=[0.5, 0.5], 
         outpath=None,
         practise_mode=True,
