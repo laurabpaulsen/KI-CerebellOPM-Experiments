@@ -217,7 +217,7 @@ class ExpectationExperiment:
             for i_block, block in enumerate(self.blocks):
                 for i, event in enumerate(block):
                     self.show_fixation()
-                    print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}")
+                    print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}. Stimuli: {event['first']} - {event['second']}")
 
                     # break in the middle of the block
                     if i == len(block)//2 and not self.practise_mode:
