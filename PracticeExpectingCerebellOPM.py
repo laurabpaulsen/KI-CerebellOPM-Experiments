@@ -98,6 +98,7 @@ if __name__ == "__main__":
         for connector in connectors.values():
             connector.change_intensity(new_salient)
         #experiment.n_events_per_block = 2  # for a short confirmation block with 1 expected and 1 unexpected trial per condition
+        experiment.blocks = experiment.blocks[0]  # use only the first two blocks for confirmation
         experiment.run()
 
         # n_events_per_block=6 for a short confirmation block with 1 expected and 1 unexpected trial per condition
