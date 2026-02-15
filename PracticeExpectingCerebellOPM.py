@@ -11,7 +11,7 @@ from ExpectingCerebellOPM import ExpectationExperiment, create_trigger_mapping
 from utils.params import (
     TARGET_1, TARGET_1_KEYS,
     TARGET_2, TARGET_2_KEYS,
-    STIM_DURATION,  RNG_INTERVAL, ISI,
+    STIM_DURATION,  RNG_INTERVAL, ISI, VALID_INTENSITIES,
     connectors
 )
 
@@ -38,6 +38,32 @@ practice_instructions = [
     ]
 
 
+
+def update_intensity(experiment):
+    new_salient = None
+    while True:
+        update = input("\nUpdate salient intensity? (y/n): ").strip().lower()
+        if "n" in update:
+            break
+        if "y" not in update:
+            print("❌ Invalid input. Please enter 'y' or 'n'.")
+            continue
+
+        while True:
+            try:
+                new_salient = float(input("Enter new salient intensity (1.0–10.0): "))
+                if new_salient not in VALID_INTENSITIES:
+                    raise ValueError
+                break
+            except ValueError:
+                print("❌ Invalid input. Enter a number between 1.0 and 10.0 in steps of 0.1.")
+
+    if new_salient is not None:
+        return new_salient
+    else:
+        return None
+
+
 if __name__ == "__main__":
 
     print("This is for running the practice rounds of the EXPECTATION experiment.\n")
@@ -53,7 +79,7 @@ if __name__ == "__main__":
         ISI=ISI,
         trigger_mapping=trigger_mapping,
         connectors=connectors,
-        n_events_per_block = 8,
+        n_events_per_block = 6,
         rng_interval =  RNG_INTERVAL,
         n_repeats_per_block = 1,
         prop_expected_unexpected=[0.5, 0.5], 
@@ -62,7 +88,19 @@ if __name__ == "__main__":
         send_trigger=False
     )
     
-    
     experiment.display.show_instructions(practice_instructions)
 
     experiment.run()
+
+    # check whether to update intensity and run short confirmation block
+    new_salient = update_intensity(experiment)
+
+    while new_salient is not None:
+
+        for connector in connectors.values():
+            connector.change_intensity(new_salient)
+        experiment.n_events_per_block = 2  # for a short confirmation block with 1 expected and 1 unexpected trial per condition
+        experiment.run()
+
+        # n_events_per_block=6 for a short confirmation block with 1 expected and 1 unexpected trial per condition
+        new_salient = update_intensity(experiment)
