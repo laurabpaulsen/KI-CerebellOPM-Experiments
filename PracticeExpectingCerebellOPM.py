@@ -39,7 +39,7 @@ practice_instructions = [
 
 
 
-def update_intensity(experiment):
+def update_intensity():
     new_salient = None
     while True:
         update = input("\nUpdate salient intensity? (y/n): ").strip().lower()
@@ -54,14 +54,11 @@ def update_intensity(experiment):
                 new_salient = float(input("Enter new salient intensity (1.0–10.0): "))
                 if new_salient not in VALID_INTENSITIES:
                     raise ValueError
-                break
+                return new_salient
             except ValueError:
                 print("❌ Invalid input. Enter a number between 1.0 and 10.0 in steps of 0.1.")
 
-    if new_salient is not None:
-        return new_salient
-    else:
-        return None
+    return None
 
 
 if __name__ == "__main__":
@@ -93,7 +90,7 @@ if __name__ == "__main__":
     experiment.run()
 
     # check whether to update intensity and run short confirmation block
-    new_salient = update_intensity(experiment)
+    new_salient = update_intensity()
 
     while new_salient is not None:
 
@@ -103,4 +100,4 @@ if __name__ == "__main__":
         experiment.run()
 
         # n_events_per_block=6 for a short confirmation block with 1 expected and 1 unexpected trial per condition
-        new_salient = update_intensity(experiment)
+        new_salient = update_intensity()
