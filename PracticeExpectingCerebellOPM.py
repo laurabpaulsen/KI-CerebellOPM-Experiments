@@ -105,4 +105,4 @@ if __name__ == "__main__":
         new_salient = update_intensity()
 
 
-    print(f"Practice complete, final salient intensity: {intensity}.")
+    print(f"Practice complete, final salient intensity: {intensity}. \n\n\n")
