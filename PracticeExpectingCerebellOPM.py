@@ -30,7 +30,7 @@ practice_instructions = [
         "Indicate which finger received the second stimulus by pressing the corresponding key. \n\n\n"
         f"{TARGET_1} finger: {key_color_mapping[TARGET_1_KEYS[0]]} \n\n"
         f"{TARGET_2} finger: {key_color_mapping[TARGET_2_KEYS[0]]}\n\n"
-        "Always use your index finger to respond.",
+        "Always use your right index finger to press the corresponding key.",
 
         "Respond as quickly and accurately as possible",
         
