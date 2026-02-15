@@ -93,6 +93,7 @@ if __name__ == "__main__":
     new_salient = update_intensity()
 
     while new_salient is not None:
+        intensity = new_salient
 
         for connector in connectors.values():
             connector.change_intensity(new_salient)
@@ -101,3 +102,6 @@ if __name__ == "__main__":
 
         # n_events_per_block=6 for a short confirmation block with 1 expected and 1 unexpected trial per condition
         new_salient = update_intensity()
+
+
+    print(f"Practice complete, final salient intensity: {intensity}.")
