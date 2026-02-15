@@ -76,9 +76,9 @@ if __name__ == "__main__":
         ISI=ISI,
         trigger_mapping=trigger_mapping,
         connectors=connectors,
-        n_events_per_block = 6,
-        rng_interval =  RNG_INTERVAL,
-        n_repeats_per_block = 1,
+        n_events_per_block=4,
+        rng_interval=RNG_INTERVAL,
+        n_repeats_per_block=1,
         prop_expected_unexpected=[0.5, 0.5], 
         outpath=None,
         practise_mode=True,
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
         for connector in connectors.values():
             connector.change_intensity(new_salient)
-        experiment.n_events_per_block = 2  # for a short confirmation block with 1 expected and 1 unexpected trial per condition
+        #experiment.n_events_per_block = 2  # for a short confirmation block with 1 expected and 1 unexpected trial per condition
         experiment.run()
 
         # n_events_per_block=6 for a short confirmation block with 1 expected and 1 unexpected trial per condition
