@@ -153,4 +153,10 @@ if __name__ == "__main__":
     # update intensities again if needed
     update_intensity(experiment)
 
+
+
+    # print information about the final salient and weak intensities for the experimenter to note down
+    print("\nPractice rounds complete.")
+    print(f"Salient intensity: {experiment.salient_intensity}\n\n")
+
   
