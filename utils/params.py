@@ -16,7 +16,7 @@ TARGET_2_KEYS = ["2", "y"]
 DIFF_SALIENT_WEAK = 0.3  # difference between salient and weak intensity
 N_REPEATS_BLOCKS = 6
 N_SEQUENCE_BLOCKS = 5 # was 6 before!
-RESET_QUEST = 2 # how many blocks before resetting QUEST
+RESET_QUEST = 3 # how many blocks before resetting QUEST
 ISIS = [1.31, 1.44, 1.57, 1.69] 
 
 # Params for ExpectingCerebellOPM
