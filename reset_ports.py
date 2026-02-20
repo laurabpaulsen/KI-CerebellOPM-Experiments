@@ -10,12 +10,13 @@ from nidaqmx.constants import LineGrouping
 
 PORTS = ["Dev1/port9/line0:7", "Dev1/port0/line0:7", "Dev1/port3/line0:7"]  # All 8 lines of port 0, 3, 9
 
-def init_tasks(PORTS):
+def init_tasks():
     
     tasks = []
     
     for port in PORTS:
-        task = nidaqmx.Task()
+        task = nidaqmx.Task(new_task_name=f"Reset Port Task {port}")
+
         task.do_channels.add_do_chan(
             port,
             line_grouping=LineGrouping.CHAN_FOR_ALL_LINES
