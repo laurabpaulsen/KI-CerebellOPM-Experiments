@@ -12,11 +12,13 @@ import numpy as np
 import copy
 
 from utils.responses_nidaqmx import NIResponsePad
-from utils.triggers_nidaqmx import setParallelData
+from utils.triggers_nidaqmx import setParallelData, close_tasks
 
 from psychopy.clock import CountdownTimer
 from psychopy.core import wait
 
+
+from utils.fixation_display import FixationDisplay
 
 from utils.params import (
     VALID_INTENSITIES, STIM_DURATION, 
@@ -26,7 +28,6 @@ from utils.params import (
     connectors
 )
 
-from utils.fixation_display import FixationDisplay
 
 
 OUTPATH = Path(__file__).parent / "output" / "ExpectingCerebellOPM"
@@ -418,8 +419,8 @@ if __name__ in "__main__":
 
     experiment.run()
 
-
     if experiment.send_trigger:
         experiment.raise_and_lower_trigger(trigger_mapping["experiment/end"])
 
-    
+    # Close NI-DAQ tasks at the end of the experiment
+    close_tasks()

@@ -24,7 +24,7 @@ from utils.params import (
 
 from utils.quest_controller import QuestController
 from utils.responses_nidaqmx import NIResponsePad
-from utils.triggers_nidaqmx import setParallelData
+from utils.triggers_nidaqmx import setParallelData, close_tasks
 from utils.fixation_display import FixationDisplay
 
 
@@ -166,8 +166,6 @@ class MiddleIndexTactileDiscriminationTask:
 
     def show_fixation(self, color="white"):
         self.display.show_fixation(color=color)
-
-
 
     def setup_experiment(self):
         logged_block_idx = 0
@@ -744,3 +742,7 @@ if __name__ == "__main__":
     print_experiment_information(experiment)
     experiment.check_in_on_participant(message="Ready to begin main experiment.")
     experiment.run()
+
+
+    # Close NI-DAQ tasks at the end of the experiment
+    close_tasks()
