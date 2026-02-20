@@ -26,20 +26,18 @@ def init_tasks():
     return tasks
 
         
-def lower_lines():
-    tasks = init_tasks()
-
+def lower_lines(tasks):
     for task in tasks:
         task.write(0, auto_start=True)  # Set lines to desired code without starting yet 
    
 
-def close_tasks():
-    tasks = init_tasks()
+def close_tasks(tasks):
 
     for task in tasks:
         task.close()
 
 if __name__ == "__main__":
-    lower_lines()
-    close_tasks()
+    tasks = init_tasks()
+    lower_lines(tasks)
+    close_tasks(tasks)
   
