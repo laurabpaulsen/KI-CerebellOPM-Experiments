@@ -33,14 +33,14 @@ def _init_task():
         return
 
     if USE_NIDAQ:
-        _trigger_task_OPM = nidaqmx.Task()
+        _trigger_task_OPM = nidaqmx.Task(new_task_name="OPM Trigger Task")
         _trigger_task_OPM.do_channels.add_do_chan(
             CHANNEL_OPM,
             line_grouping=LineGrouping.CHAN_FOR_ALL_LINES
         )
         print(f"[NI] Trigger task initialised on {CHANNEL_OPM} for OPM.")
 
-        _trigger_task_SQUID = nidaqmx.Task()
+        _trigger_task_SQUID = nidaqmx.Task(new_task_name="SQUID Trigger Task")
         _trigger_task_SQUID.do_channels.add_do_chan(
             CHANNEL_SQUID,
             line_grouping=LineGrouping.CHAN_FOR_ALL_LINES
