@@ -82,7 +82,7 @@ class NIResponsePad:
             return
 
         line_string = self._make_line_string()
-        self._task = nidaqmx.Task()
+        self._task = nidaqmx.Task(new_task_name="NI Response Pad Task")
         self._task.di_channels.add_di_chan(
             line_string,
             line_grouping=LineGrouping.CHAN_FOR_ALL_LINES
