@@ -16,8 +16,7 @@ class FixationDisplay:
         self.root.bind("<Escape>", lambda e: self.close())
 
         # Move window to selected monitor
-        self.root.geometry(f"{mon.width}x{mon.height}+{mon.x}+{mon.y}")
-        self.root.overrideredirect(True)  # remove window borders
+        self.root.attributes("-fullscreen", True)
         self.root.lift()
         self.root.focus_force()
 
