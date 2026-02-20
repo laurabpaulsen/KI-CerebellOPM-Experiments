@@ -14,7 +14,6 @@ if USE_NIDAQ:
     from nidaqmx.constants import LineGrouping
 
 
-
 # ---- CONFIGURE THIS ----
 CHANNEL_OPM = "Dev1/port9/line0:7"   # All 8 lines of port 9
 CHANNEL_SQUID = "Dev1/port0/line0:7"  # All 8 lines of port 0
@@ -57,13 +56,29 @@ def setParallelData(code=1):
     _init_task()
 
     if USE_NIDAQ:
-        _trigger_task_OPM.write(code, auto_start=True)
-        _trigger_task_SQUID.write(code, auto_start=True) 
+        for task in [_trigger_task_OPM, _trigger_task_SQUID]:
+            task.write(code, auto_start=True)  # Set lines to desired code without starting yet 
         time.sleep(PULSE_WIDTH)
-        _trigger_task_OPM.write([False] * 8, auto_start=True)
-        _trigger_task_SQUID.write([False] * 8, auto_start=True)
+
+        for task in [_trigger_task_OPM, _trigger_task_SQUID]:
+            task.write(0, auto_start=True)  # Reset lines to 0 after pulse width
     else:
         # Fake trigger behaviour
         timestamp = time.perf_counter()
         print(f"[MOCK TRIGGER] {timestamp:.6f}  CODE={code}")
         time.sleep(PULSE_WIDTH)
+
+
+def close_tasks():
+    global _trigger_task_OPM
+    global _trigger_task_SQUID
+
+    if USE_NIDAQ:
+        if _trigger_task_OPM is not None:
+            _trigger_task_OPM.close()
+            _trigger_task_OPM = None
+            print("[NI] OPM trigger task closed.")
+        if _trigger_task_SQUID is not None:
+            _trigger_task_SQUID.close()
+            _trigger_task_SQUID = None
+            print("[NI] SQUID trigger task closed.")
