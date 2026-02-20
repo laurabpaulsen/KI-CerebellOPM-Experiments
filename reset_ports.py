@@ -15,7 +15,7 @@ def init_tasks():
     tasks = []
     
     for port in PORTS:
-        task = nidaqmx.Task(new_task_name=f"Reset Port Task {port}")
+        task = nidaqmx.Task(new_task_name=f"Reset Port Task {port.split('/')[1]}")  # Name task based on port
 
         task.do_channels.add_do_chan(
             port,
