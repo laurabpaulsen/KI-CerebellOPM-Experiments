@@ -26,7 +26,7 @@ from utils.quest_controller import QuestController
 from utils.responses_nidaqmx import NIResponsePad
 from utils.triggers_nidaqmx import setParallelData, close_tasks
 from utils.fixation_display import FixationDisplay
-
+import signal
 
 
 # ------------------- #
@@ -36,7 +36,6 @@ from utils.fixation_display import FixationDisplay
 
 OUTPUT_PATH = Path(__file__).parent / "output" / "BreathingCerebellOPM"
 OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
-
 
 
 def create_trigger_mapping( stim = 1, target = 2, middle = 4, index = 8,response = 16, correct = 32, incorrect = 64):
@@ -325,7 +324,7 @@ class MiddleIndexTactileDiscriminationTask:
             # deliver pulse
             self.deliver_stimulus(event_type)
             if i % 10 == 0:
-                print(f"Progress: {i+1}/{len(events)}, Breaks: {n_breaks_done}/{total_breaks}")
+                print(f"Progress: {(i+1)/len(events)*100:.1f}%, Breaks: {n_breaks_done}/{total_breaks}")
 
             stim_time = time.perf_counter() - self.start_time
             
@@ -691,6 +690,9 @@ def get_participant_info():
         exit()
 
     return pid, {"salient": salient, "weak": weak}
+
+
+# specify what happens if the script is interrupted during the experiment (e.g., by pressing Ctrl+C)
 
 
 if __name__ == "__main__":
