@@ -310,9 +310,6 @@ class MiddleIndexTactileDiscriminationTask:
             else:
                 intensity = self.QUEST.current_intensity
 
-            if self.send_trigger:
-                self.raise_and_lower_trigger(trigger)  # Send trigger
-
             if "target" in event_type:
                 self.listener.reset_response()
                 if self.practice_mode:
@@ -322,6 +319,8 @@ class MiddleIndexTactileDiscriminationTask:
                 self.show_fixation()
             
             # deliver pulse
+            if self.send_trigger:
+                self.raise_and_lower_trigger(trigger)  # Send trigger
             self.deliver_stimulus(event_type)
             if i % 10 == 0:
                 print(f"Progress: {(i+1)/len(events)*100:.1f}%, Breaks: {n_breaks_done}/{total_breaks}")
@@ -363,11 +362,13 @@ class MiddleIndexTactileDiscriminationTask:
                     if key:
                         correct, response_trigger = self.correct_or_incorrect(key, event_type)
                         time_of_response = (time.perf_counter() - self.start_time)
-
-                        print(f"Response: {key}, Correct: {correct}")
                         if self.send_trigger:
                             self.raise_and_lower_trigger(response_trigger)
 
+                        
+
+                        print(f"Response: {key}, Correct: {correct}")
+                        
                         rt = time_of_response - stim_time
                         response_given = True
                             
