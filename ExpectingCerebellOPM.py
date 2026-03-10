@@ -36,7 +36,7 @@ if not OUTPATH.exists():
     OUTPATH.mkdir(parents=True, exist_ok=True)
 
 class ExpectationExperiment:
-    LOGHEADER = "block,event,time,repeated,expected,response,correct,RT,intensity,trigger\n"
+    LOGHEADER = "block,event,time,repeated,expected,response,RT,correct,intensity,trigger\n"
     def __init__(
         self, ISI: float, 
         trigger_mapping:dict,
