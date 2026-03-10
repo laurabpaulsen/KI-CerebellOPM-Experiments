@@ -240,40 +240,39 @@ class MiddleIndexTactileDiscriminationTask:
 
     
     def trig_break_start(self, log_file=None):
-        if self.send_trigger:
-            self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
 
-            if log_file:
-                self.log_event(
-                    event_time=time.perf_counter() - self.start_time,
-                    block="break",
-                    ISI="NA",
-                    intensity="NA",
-                    event_type="break/start",
-                    trigger=self.trigger_mapping["break/start"],
-                    n_in_block="NA",
-                    correct="NA",
-                    reset_QUEST=False,
-                    rt="NA",
-                    log_file=log_file
-                )
+        self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
+
+            
+        self.log_event(
+            event_time=time.perf_counter() - self.start_time,
+            block="break",
+            ISI="NA",
+            intensity="NA",
+            event_type="break/start",
+            trigger=self.trigger_mapping["break/start"],
+            n_in_block="NA",
+            correct="NA",
+            reset_QUEST=False,
+            rt="NA",
+            log_file=log_file
+        )
     def trig_break_end(self, log_file=None):
-        if self.send_trigger:
-            self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
-            if log_file:
-                self.log_event(
-                    event_time=time.perf_counter() - self.start_time,
-                    block="break",
-                    ISI="NA",
-                    intensity="NA",
-                    event_type="break/end",
-                    trigger=self.trigger_mapping["break/end"],
-                    n_in_block="NA",
-                    correct="NA",
-                    reset_QUEST=False,
-                    rt="NA",
-                    log_file=log_file
-                )
+
+        self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
+        self.log_event(
+            event_time=time.perf_counter() - self.start_time,
+            block="break",
+            ISI="NA",
+            intensity="NA",
+            event_type="break/end",
+            trigger=self.trigger_mapping["break/end"],
+            n_in_block="NA",
+            correct="NA",
+            reset_QUEST=False,
+            rt="NA",
+            log_file=log_file
+        )
     
     def check_in_on_participant(self, message: str = "Check in on the participant."):
         input(message + " Press Enter to continue...")
@@ -319,8 +318,8 @@ class MiddleIndexTactileDiscriminationTask:
                 self.show_fixation()
             
             # deliver pulse
-            if self.send_trigger:
-                self.raise_and_lower_trigger(trigger)  # Send trigger
+            
+            self.raise_and_lower_trigger(trigger)  # Send trigger
             self.deliver_stimulus(event_type)
             if i % 10 == 0:
                 print(f"Progress: {(i+1)/len(events)*100:.1f}%, Breaks: {n_breaks_done}/{total_breaks}")
@@ -362,8 +361,8 @@ class MiddleIndexTactileDiscriminationTask:
                     if key:
                         correct, response_trigger = self.correct_or_incorrect(key, event_type)
                         time_of_response = (time.perf_counter() - self.start_time)
-                        if self.send_trigger:
-                            self.raise_and_lower_trigger(response_trigger)
+                        
+                        self.raise_and_lower_trigger(response_trigger)
 
                         
 
@@ -374,16 +373,16 @@ class MiddleIndexTactileDiscriminationTask:
                             
                         # overwrite event type for logging
                         trial["event_type"] = "response"
-                        if log_file:
-                            self.log_event(
-                                **trial,
-                                event_time=time_of_response,
-                                intensity="NA",
-                                trigger=response_trigger,
-                                correct=correct,
-                                rt=rt,
-                                log_file=log_file
-                            )
+                        
+                        self.log_event(
+                            **trial,
+                            event_time=time_of_response,
+                            intensity="NA",
+                            trigger=response_trigger,
+                            correct=correct,
+                            rt=rt,
+                            log_file=log_file
+                        )
                             
 
                         self.QUEST.add_response(correct, intensity=intensity)
@@ -447,8 +446,8 @@ class MiddleIndexTactileDiscriminationTask:
             if write_header:
                 log_file.write(self.LOG_HEADER)
 
-            if self.send_trigger:
-                self.raise_and_lower_trigger(self.trigger_mapping["experiment/start"])
+            
+            self.raise_and_lower_trigger(self.trigger_mapping["experiment/start"])
 
             self.log_event(
                 event_time=time.perf_counter() - self.start_time, 
@@ -459,8 +458,8 @@ class MiddleIndexTactileDiscriminationTask:
             
             self.loop_over_events(self.events, log_file)
 
-            if self.send_trigger:
-                self.raise_and_lower_trigger(self.trigger_mapping["experiment/end"])
+            
+            self.raise_and_lower_trigger(self.trigger_mapping["experiment/end"])
 
             self.log_event(
                 event_time=time.perf_counter() - self.start_time,
@@ -503,7 +502,8 @@ class MiddleIndexTactileDiscriminationTask:
         self.listener.stop_listener()  # Stop the keyboard listener
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
+        if self.send_trigger:
+            setParallelData(trigger)
 
     def ask_for_update_intensity(self):
         # possiblility to update intensities after practice
