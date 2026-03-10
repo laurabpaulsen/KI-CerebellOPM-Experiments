@@ -86,6 +86,7 @@ class ExpectationExperiment:
         self.send_trigger = send_trigger
         self.practise_mode = practise_mode
         self.intensity = intensity
+        self.start_time = time.perf_counter()
 
         self.display = FixationDisplay(screen_index=0)
         self.break_message = 'Time for a break!'
@@ -213,7 +214,7 @@ class ExpectationExperiment:
     def run(self):
         # Start the listener once at the start
         self.listener.start_listener()
-        self.start_time = time.perf_counter()
+        
 
         with open(self.outpath, "w") as log_file:
             log_file.write(self.LOGHEADER)
