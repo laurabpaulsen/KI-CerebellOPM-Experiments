@@ -34,7 +34,7 @@ import signal
 # ------------------- #
 
 
-OUTPUT_PATH = Path(__file__).parent / "output" / "BreathingCerebellOPM"
+OUTPUT_PATH = Path(__file__).parent / "output" 
 OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 
 
@@ -701,13 +701,13 @@ if __name__ == "__main__":
     participant_id, start_intensities = get_participant_info()
 
     # Setup logfile based on participant ID
-    logfile = OUTPUT_PATH / f"{participant_id}_behavioural_data.csv"
+    logfile = OUTPUT_PATH / f"sub-{participant_id}_task-breathing.csv"
 
     # check if it already exists
     if logfile.exists():
         i = 1
         while logfile.exists():
-            logfile = OUTPUT_PATH / f"{participant_id}_behavioural_data_{i}.csv"
+            logfile = OUTPUT_PATH / f"sub-{participant_id}_task-breathing_{i}.csv"
             i += 1
 
     print(f"Behavioural data will be saved to: {logfile}")

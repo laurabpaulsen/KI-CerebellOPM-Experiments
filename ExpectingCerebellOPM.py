@@ -30,7 +30,7 @@ from utils.params import (
 
 
 
-OUTPATH = Path(__file__).parent / "output" / "ExpectingCerebellOPM"
+OUTPATH = Path(__file__).parent / "output"
 
 if not OUTPATH.exists():
     OUTPATH.mkdir(parents=True, exist_ok=True)
@@ -383,14 +383,14 @@ if __name__ in "__main__":
         connector.change_intensity(intensity)
 
     trigger_mapping = create_trigger_mapping()
-    outpath = OUTPATH / f"{participant_id}_{intensity}.csv"
+    outpath = OUTPATH / f"sub-{participant_id}_task-expectating.csv"
 
     # check whether the output file already exists
     if outpath.exists():
         # append a number to the filename
         i = 1
         while True:
-            new_outpath = OUTPATH / f"{participant_id}_{intensity}_{i}.csv"
+            new_outpath = OUTPATH / f"sub-{participant_id}_task-expectating_{i}.csv"
             if not new_outpath.exists():
                 outpath = new_outpath
                 break
