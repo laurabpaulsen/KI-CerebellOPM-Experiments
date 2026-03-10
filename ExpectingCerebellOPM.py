@@ -36,7 +36,7 @@ if not OUTPATH.exists():
     OUTPATH.mkdir(parents=True, exist_ok=True)
 
 class ExpectationExperiment:
-    LOGHEADER = "block,stim_site_first,time_first,stim_site_second,time_second,repeated,expected,response,RT,correct,intensity\n"
+    LOGHEADER = "block,event,time,repeated,expected,RT,correct,intensity,trigger\n"
     def __init__(
         self, ISI: float, 
         trigger_mapping:dict,
@@ -178,7 +178,10 @@ class ExpectationExperiment:
 
 
     def raise_and_lower_trigger(self, trigger):
-        setParallelData(trigger)
+        if self.send_trigger:
+            setParallelData(trigger)
+        
+        
 
         
     def calculate_duration(self, response_time: float = 1.0) -> float:
@@ -228,31 +231,42 @@ class ExpectationExperiment:
                         self.show_fixation()
 
 
-                    time_first = time.perf_counter()
+                    time_first = time.perf_counter() - self.start_time
                     self.deliver_stimulus(event["first"])
                     self.raise_and_lower_trigger(event["trigger_first"])
+                    self.log_event(
+                        i_block, event="first", time=time_first, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_first"], log_file=log_file
+                    )
+
                     wait(self.ISI)
-                    time_second = time.perf_counter()
+                    time_second = time.perf_counter() - self.start_time
                     self.deliver_stimulus(event["second"])
                     self.raise_and_lower_trigger(event["trigger_second"])
+                    self.log_event(
+                        i_block, event="second", time=time_second, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_second"], log_file=log_file
+                    )
 
                     self.listener.reset_response()  # <- clear any lingering press from previous trial
                     while True:
                         candidate = self.listener.get_response()
                         if candidate:
                             response = candidate
-                            response_time = time.perf_counter() - time_second
+                            time_of_response = time.perf_counter() - self.start_time
+                            response_time = time_of_response - time_second
                             correct = response in self.response_keys[event["second"]]
                             self.raise_and_lower_trigger(self.trigger_mapping["response"])
-                            print(f"{event['second']} {event['repeated']}, {event['expected']} - Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
-                            break
+                            
 
-                    # Log the event
-                    self.log_event(
-                        i_block, event["first"], time_first, event["second"],
-                        time_second, event["repeated"], event["expected"],
-                        response, response_time, correct, self.intensity, log_file
-                    )
+                            self.log_event(
+                                i_block, event="response", time=time_of_response,
+                                repeated=event["repeated"], expected=event["expected"],
+                                trigger=self.trigger_mapping["response"],
+                                response=response, RT=response_time, correct=correct, intensity=self.intensity, log_file=log_file
+                            )
+                            
+                            print(f"{event['second']} {event['repeated']}, {event['expected']} - Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
+
+                            break
 
 
                     ## Wait for the inter-pair interval
@@ -267,23 +281,21 @@ class ExpectationExperiment:
         self.listener.stop_listener()
         print("Experiment finished.")
 
-    def log_event(self, block="NA", stim_site_first="NA", time_first="NA", stim_site_second="NA", time_second="NA", repeated="NA", expected="NA", response="NA", RT="NA", correct="NA", intensity = "NA", log_file=None):
+    def log_event(self, block="NA", event="NA", time="NA", repeated="NA", expected="NA", response="NA", RT="NA", correct="NA", intensity = "NA", trigger = "NA", log_file=None):
         if log_file:
-            log_file.write(f"{block},{stim_site_first},{time_first},{stim_site_second},{time_second},{repeated},{expected},{response},{RT},{correct},{intensity}\n")
+            log_file.write(f"{block},{event},{time},{repeated},{expected},{response},{RT},{correct},{intensity},{trigger}\n")
 
     def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None, ask_for_update: bool = True):
-        if self.send_trigger:
-            self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
-            self.log_event(block="break_start", time_first=time.perf_counter() - self.start_time, log_file=log_file)
+        self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
+        self.log_event(block="break_start", time=time.perf_counter() - self.start_time, log_file=log_file)
 
         input(message + " Press Enter to continue...")
 
         if ask_for_update:
             self.ask_for_update_intensity()
-        
-        if self.send_trigger:
-            self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
-            self.log_event(block="break_end", time_first=time.perf_counter() - self.start_time, log_file=log_file)
+
+        self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
+        self.log_event(block="break_end", time=time.perf_counter() - self.start_time, log_file=log_file)
         
         wait(2)
 
@@ -414,13 +426,15 @@ if __name__ in "__main__":
     input("Press Enter to begin the experiment...")
 
 
-    if experiment.send_trigger:
-        experiment.raise_and_lower_trigger(trigger_mapping["experiment/start"])
+    
+    experiment.raise_and_lower_trigger(trigger_mapping["experiment/start"])
+    experiment.log_event(block="experiment_start", event="start", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/start"], log_file=None)    
 
     experiment.run()
 
-    if experiment.send_trigger:
-        experiment.raise_and_lower_trigger(trigger_mapping["experiment/end"])
+
+    experiment.raise_and_lower_trigger(trigger_mapping["experiment/end"])
+    experiment.log_event(block="experiment_end", event="end", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/end"], log_file=None)
 
     # Close NI-DAQ tasks at the end of the experiment
     close_tasks()
