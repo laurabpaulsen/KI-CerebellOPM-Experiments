@@ -36,7 +36,7 @@ if not OUTPATH.exists():
     OUTPATH.mkdir(parents=True, exist_ok=True)
 
 class ExpectationExperiment:
-    LOGHEADER = "block,event,time,repeated,expected,correct,RT,intensity,trigger\n"
+    LOGHEADER = "block,event,time,repeated,expected,response,correct,RT,intensity,trigger\n"
     def __init__(
         self, ISI: float, 
         trigger_mapping:dict,
@@ -282,11 +282,11 @@ class ExpectationExperiment:
         self.listener.stop_listener()
         print("Experiment finished.")
 
-    def log_event(self, block="NA", event="NA", time="NA", repeated="NA", expected="NA", RT="NA", correct="NA", intensity = "NA", trigger = "NA", log_file=None):
-        #"block,event,time,repeated,expected,correct,RT,intensity,trigger\n"
+    def log_event(self, block="NA", event="NA", time="NA", repeated="NA", expected="NA", RT="NA", correct="NA", intensity = "NA", trigger = "NA", response="NA", log_file=None):
+        #"block,event,time,repeated,expected,response,correct,RT,intensity,trigger\n"
 
         if log_file:
-            log_file.write(f"{block},{event},{time},{repeated},{expected},{RT},{correct},{intensity},{trigger}\n")
+            log_file.write(f"{block},{event},{time},{repeated},{expected},{response},{RT},{correct},{intensity},{trigger}\n")
 
     def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None, ask_for_update: bool = True):
         self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
