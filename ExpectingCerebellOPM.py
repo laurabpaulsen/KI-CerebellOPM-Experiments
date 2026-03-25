@@ -152,9 +152,11 @@ class ExpectationExperiment:
                         block_events.append(
                             {
                                 "first": first,
+                                "first_label": f"first/{first}",
                                 "trigger_first": self.trigger_mapping[f"first/{first}"],
                                 "second": second,
                                 "trigger_second": self.trigger_mapping[trigger_second_key],
+                                "second_label": trigger_second_key,
                                 "expected": exp,
                                 "repeated": repeated_label,
                                 "IPI": self.rng_IPI.uniform(*self.rng_interval),
@@ -236,7 +238,7 @@ class ExpectationExperiment:
                     self.deliver_stimulus(event["first"])
                     self.raise_and_lower_trigger(event["trigger_first"])
                     self.log_event(
-                        i_block, event="first", time=time_first, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_first"], log_file=log_file
+                        block=i_block, event=event["first_label"], time=time_first, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_first"], log_file=log_file
                     )
 
                     wait(self.ISI)
@@ -244,7 +246,7 @@ class ExpectationExperiment:
                     self.deliver_stimulus(event["second"])
                     self.raise_and_lower_trigger(event["trigger_second"])
                     self.log_event(
-                        i_block, event="second", time=time_second, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_second"], log_file=log_file
+                        block=i_block, event=f"second/{event['second']}", time=time_second, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_second"], log_file=log_file
                     )
 
                     self.listener.reset_response()  # <- clear any lingering press from previous trial
@@ -259,7 +261,7 @@ class ExpectationExperiment:
                             
 
                             self.log_event(
-                                i_block, event="response", time=time_of_response,
+                                block=i_block, event="response", time=time_of_response,
                                 repeated=event["repeated"], expected=event["expected"],
                                 trigger=self.trigger_mapping["response"],
                                 response=response, RT=response_time, correct=correct, intensity=self.intensity, log_file=log_file
@@ -268,7 +270,6 @@ class ExpectationExperiment:
                             print(f"{event['second']} {event['repeated']}, {event['expected']} - Response: {response} | Correct: {correct} | RT: {response_time:.3f} s")
 
                             break
-
 
                     ## Wait for the inter-pair interval
                     wait(event["IPI"])
@@ -290,7 +291,7 @@ class ExpectationExperiment:
 
     def check_in_on_participant(self, message: str = "Check in on the participant.", log_file=None, ask_for_update: bool = True):
         self.raise_and_lower_trigger(self.trigger_mapping["break/start"])
-        self.log_event(block="break_start", time=time.perf_counter() - self.start_time, trigger=self.trigger_mapping["break/start"], log_file=log_file)
+        self.log_event(event="break/start", block="break/start", time=time.perf_counter() - self.start_time, trigger=self.trigger_mapping["break/start"], log_file=log_file)
 
         input(message + " Press Enter to continue...")
 
@@ -298,7 +299,7 @@ class ExpectationExperiment:
             self.ask_for_update_intensity()
 
         self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
-        self.log_event(block="break_end", time=time.perf_counter() - self.start_time, trigger=self.trigger_mapping["break/end"], log_file=log_file)
+        self.log_event(event= "break/end", block="break/end", time=time.perf_counter() - self.start_time, trigger=self.trigger_mapping["break/end"], log_file=log_file)
         
         wait(2)
 
@@ -431,13 +432,13 @@ if __name__ in "__main__":
 
     
     experiment.raise_and_lower_trigger(trigger_mapping["experiment/start"])
-    experiment.log_event(block="experiment_start", event="start", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/start"], log_file=None)    
+    experiment.log_event(block="experiment/start", event="experiment/start", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/start"], log_file=None)    
 
     experiment.run()
 
 
     experiment.raise_and_lower_trigger(trigger_mapping["experiment/end"])
-    experiment.log_event(block="experiment_end", event="end", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/end"], log_file=None)
+    experiment.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/end"], log_file=None)
 
     # Close NI-DAQ tasks at the end of the experiment
     close_tasks()
