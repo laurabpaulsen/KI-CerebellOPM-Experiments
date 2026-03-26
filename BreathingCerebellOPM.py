@@ -245,11 +245,11 @@ class MiddleIndexTactileDiscriminationTask:
 
             
         self.log_event(
-            event_time=time.perf_counter() - self.start_time,
+            time=time.perf_counter() - self.start_time,
             block="break",
             ISI="NA",
             intensity="NA",
-            event_type="break/start",
+            event="break/start",
             trigger=self.trigger_mapping["break/start"],
             n_in_block="NA",
             correct="NA",
@@ -261,11 +261,11 @@ class MiddleIndexTactileDiscriminationTask:
 
         self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
         self.log_event(
-            event_time=time.perf_counter() - self.start_time,
+            time=time.perf_counter() - self.start_time,
             block="break",
             ISI="NA",
             intensity="NA",
-            event_type="break/end",
+            event="break/end",
             trigger=self.trigger_mapping["break/end"],
             n_in_block="NA",
             correct="NA",
@@ -328,7 +328,7 @@ class MiddleIndexTactileDiscriminationTask:
             
             self.log_event(
                 **trial,
-                event_time=stim_time,
+                time=stim_time,
                 intensity=intensity,
                 trigger=trigger,
                 log_file=log_file
@@ -376,7 +376,7 @@ class MiddleIndexTactileDiscriminationTask:
                         
                         self.log_event(
                             **trial,
-                            event_time=time_of_response,
+                            time=time_of_response,
                             intensity="NA",
                             trigger=response_trigger,
                             correct=correct,
@@ -395,9 +395,9 @@ class MiddleIndexTactileDiscriminationTask:
         # change fixation back to white at the end of the block
         self.show_fixation(color="white") 
 
-    def log_event(self, event_time="NA", block="NA", ISI="NA", intensity="NA", event_type="NA", trigger="NA", n_in_block="NA", correct="NA", reset_QUEST="NA", rt="NA", log_file=None):
+    def log_event(self, time="NA", block="NA", ISI="NA", intensity="NA", event="NA", trigger="NA", n_in_block="NA", correct="NA", reset_QUEST="NA", rt="NA", log_file=None):
         if log_file:
-            log_file.write(f"{event_time},{block},{ISI},{intensity},{event_type},{trigger},{n_in_block},{correct},{reset_QUEST},{rt}\n")
+            log_file.write(f"{time},{block},{ISI},{intensity},{event},{trigger},{n_in_block},{correct},{reset_QUEST},{rt}\n")
     
     def correct_or_incorrect(self, key, event_type):
         if key in self.keys_target[event_type.split('/')[-1]]:
@@ -450,8 +450,8 @@ class MiddleIndexTactileDiscriminationTask:
             self.raise_and_lower_trigger(self.trigger_mapping["experiment/start"])
 
             self.log_event(
-                event_time=time.perf_counter() - self.start_time, 
-                event_type="experiment/start",
+                time=time.perf_counter() - self.start_time, 
+                event="experiment/start",
                 trigger=self.trigger_mapping["experiment/start"],
                 log_file=log_file
                 )
@@ -462,8 +462,8 @@ class MiddleIndexTactileDiscriminationTask:
             self.raise_and_lower_trigger(self.trigger_mapping["experiment/end"])
 
             self.log_event(
-                event_time=time.perf_counter() - self.start_time,
-                event_type="experiment/end",
+                time=time.perf_counter() - self.start_time,
+                event="experiment/end",
                 trigger=self.trigger_mapping["experiment/end"],
                 log_file=log_file
                 )
