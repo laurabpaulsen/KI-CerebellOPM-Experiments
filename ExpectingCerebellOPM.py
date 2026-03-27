@@ -234,7 +234,7 @@ class ExpectationExperiment:
                     if i == len(block)//2 and not self.practise_mode:
                         # break message
                         self.display.show_text(self.break_message)
-                        self.check_in_on_participant("Halfway through the block. Check in on the participant.", ask_for_update=False)
+                        self.check_in_on_participant("Halfway through the block. Check in on the participant.", ask_for_update=False, log_file=log_file)
                         self.show_fixation()
 
 
@@ -281,10 +281,11 @@ class ExpectationExperiment:
                 # present env change message between blocks
                 if not self.practise_mode and i_block < len(self.blocks) - 1:
                     self.display.show_text(self.env_change_message)
-                    self.check_in_on_participant("Starting new block. Check in on the participant.", ask_for_update=True)
+                    self.check_in_on_participant("Starting new block. Check in on the participant.", ask_for_update=True, log_file=log_file)
 
         self.raise_and_lower_trigger(trigger_mapping["experiment/end"])
-        self.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/end"])
+        self.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/end"], log_file=log_file)
+        
         self.listener.stop_listener()
         print("Experiment finished.")
 
