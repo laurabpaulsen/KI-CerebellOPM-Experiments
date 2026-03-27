@@ -57,7 +57,7 @@ def create_trigger_mapping( stim = 1, target = 2, middle = 4, index = 8,response
         
     
 class MiddleIndexTactileDiscriminationTask:
-    LOG_HEADER = "time,block,ISI,intensity,event_type,trigger,n_in_block,correct,QUEST_reset,rt\n"
+    LOG_HEADER = "time,block,ISI,intensity,event,trigger,n_in_block,correct,QUEST_reset,rt\n"
 
     def __init__(
             self, 
@@ -215,7 +215,7 @@ class MiddleIndexTactileDiscriminationTask:
 
             for i in range(n_salient):
                 event_counter_in_block += 1
-                events.append({"ISI": ISI, "event_type": "stim/salient", "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": reset})
+                events.append({"ISI": ISI, "event": "stim/salient", "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": reset})
                 if reset:
                     reset=False
             
@@ -223,7 +223,7 @@ class MiddleIndexTactileDiscriminationTask:
             event_type = f"target/{list_of_targets[seq]}"
             
 
-            events.append({"ISI": ISI, "event_type": event_type, "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": False})
+            events.append({"ISI": ISI, "event": event_type, "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": False})
 
         return events
     
@@ -257,8 +257,8 @@ class MiddleIndexTactileDiscriminationTask:
             rt="NA",
             log_file=log_file
         )
-    def trig_break_end(self, log_file=None):
 
+    def trig_break_end(self, log_file=None):
         self.raise_and_lower_trigger(self.trigger_mapping["break/end"])
         self.log_event(
             time=time.perf_counter() - self.start_time,
@@ -301,7 +301,7 @@ class MiddleIndexTactileDiscriminationTask:
 
                 continue
             
-            event_type = trial["event_type"]
+            event_type = trial["event"]
             trigger = self.trigger_mapping[event_type]
             
             if "salient" in event_type:
@@ -340,12 +340,12 @@ class MiddleIndexTactileDiscriminationTask:
             response_given = False # to keep track of whether a response has been given
 
             try: 
-                self.prepare_for_next_stimulus(event_type, events[i+1]["event_type"])
+                self.prepare_for_next_stimulus(event_type, events[i+1]["event"])
             except IndexError:
                 pass
             except TypeError: # if break is coming up next
                 try:
-                    self.prepare_for_next_stimulus(event_type, events[i+2]["event_type"])
+                    self.prepare_for_next_stimulus(event_type, events[i+2]["event"])
                 except IndexError:
                     pass
 
@@ -372,7 +372,7 @@ class MiddleIndexTactileDiscriminationTask:
                         response_given = True
                             
                         # overwrite event type for logging
-                        trial["event_type"] = "response"
+                        trial["event"] = "response"
                         
                         self.log_event(
                             **trial,
@@ -638,7 +638,7 @@ def print_experiment_information(experiment):
 
     
     # Extract event_type from each dictionary
-    event_types = [e.get("event_type") for e in experiment.events if isinstance(e, dict)]
+    event_types = [e.get("event") for e in experiment.events if isinstance(e, dict)]
 
     # Count each event_type
     event_counts = Counter(event_types)
