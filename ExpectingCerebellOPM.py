@@ -221,6 +221,10 @@ class ExpectationExperiment:
         with open(self.outpath, "w") as log_file:
             log_file.write(self.LOGHEADER)
 
+            self.raise_and_lower_trigger(trigger_mapping["experiment/start"])
+            self.log_event(block="experiment/start", event="experiment/start", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/start"])    
+
+
             for i_block, block in enumerate(self.blocks):
                 for i, event in enumerate(block):
                     self.show_fixation()
@@ -279,7 +283,8 @@ class ExpectationExperiment:
                     self.display.show_text(self.env_change_message)
                     self.check_in_on_participant("Starting new block. Check in on the participant.", ask_for_update=True)
 
-
+        self.raise_and_lower_trigger(trigger_mapping["experiment/end"])
+        self.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/end"])
         self.listener.stop_listener()
         print("Experiment finished.")
 
@@ -431,14 +436,8 @@ if __name__ in "__main__":
 
 
     
-    experiment.raise_and_lower_trigger(trigger_mapping["experiment/start"])
-    experiment.log_event(block="experiment/start", event="experiment/start", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/start"], log_file=None)    
 
     experiment.run()
-
-
-    experiment.raise_and_lower_trigger(trigger_mapping["experiment/end"])
-    experiment.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - experiment.start_time, trigger=trigger_mapping["experiment/end"], log_file=None)
 
     # Close NI-DAQ tasks at the end of the experiment
     close_tasks()
