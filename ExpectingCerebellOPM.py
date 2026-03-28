@@ -147,16 +147,17 @@ class ExpectationExperiment:
                     for _ in range(n_trials+1):
                         second = pair[exp]
                         repeated_label = "repeated" if first == second else "unrepeated"
-                        trigger_second_key = f"second/{second}/{exp}/{repeated_label}"
+                        trigger_first_key = f"stim/first/{first}"
+                        trigger_second_key = f"stim/second/{second}/{exp}/{repeated_label}"
 
                         block_events.append(
                             {
                                 "first": first,
-                                "first_label": f"first/{first}",
-                                "trigger_first": self.trigger_mapping[f"first/{first}"],
+                                "first_label": trigger_first_key,
+                                "trigger_first": self.trigger_mapping[trigger_first_key],
                                 "second": second,
-                                "trigger_second": self.trigger_mapping[trigger_second_key],
                                 "second_label": trigger_second_key,
+                                "trigger_second": self.trigger_mapping[trigger_second_key],
                                 "expected": exp,
                                 "repeated": repeated_label,
                                 "IPI": self.rng_IPI.uniform(*self.rng_interval),
@@ -224,6 +225,8 @@ class ExpectationExperiment:
             self.raise_and_lower_trigger(trigger_mapping["experiment/start"])
             self.log_event(block="experiment/start", event="experiment/start", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/start"])    
 
+            # wait for 2 seconds before starting the first trial to give time for the experimenter to get ready after starting the experiment
+            wait(2)
 
             for i_block, block in enumerate(self.blocks):
                 for i, event in enumerate(block):
@@ -250,7 +253,7 @@ class ExpectationExperiment:
                     self.deliver_stimulus(event["second"])
                     self.raise_and_lower_trigger(event["trigger_second"])
                     self.log_event(
-                        block=i_block, event=f"second/{event['second']}", time=time_second, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_second"], log_file=log_file
+                        block=i_block, event=event["second_label"], time=time_second, repeated=event["repeated"], expected=event["expected"], intensity=self.intensity, trigger=event["trigger_second"], log_file=log_file
                     )
 
                     self.listener.reset_response()  # <- clear any lingering press from previous trial
@@ -367,21 +370,21 @@ def get_participant_info():
 def create_trigger_mapping(response_bit = 1, second_bit = 2, expected_bit = 4, repetition = 8, index_bit = 16, middle_bit = 32, break_bit_start = 64, break_bit_end = 128):
     trigger_mapping = {
         # FIRST STIMULI
-        "first/index": index_bit,
-        "first/middle": middle_bit,
+        "stim/first/index": index_bit,
+        "stim/first/middle": middle_bit,
 
         # SECOND STIMULI
         # index finger
-        "second/index/expected/repeated": second_bit + index_bit + expected_bit + repetition,
-        "second/index/expected/unrepeated": second_bit + index_bit + expected_bit,
-        "second/index/unexpected/repeated": second_bit + index_bit  + repetition,
-        "second/index/unexpected/unrepeated": second_bit + index_bit,
+        "stim/second/index/expected/repeated": second_bit + index_bit + expected_bit + repetition,
+        "stim/second/index/expected/unrepeated": second_bit + index_bit + expected_bit,
+        "stim/second/index/unexpected/repeated": second_bit + index_bit  + repetition,
+        "stim/second/index/unexpected/unrepeated": second_bit + index_bit,
 
         # middle finger
-        "second/middle/expected/repeated": second_bit + middle_bit + expected_bit + repetition,
-        "second/middle/expected/unrepeated": second_bit + middle_bit + expected_bit,
-        "second/middle/unexpected/repeated": second_bit + middle_bit  + repetition,
-        "second/middle/unexpected/unrepeated": second_bit + middle_bit,
+        "stim/second/middle/expected/repeated": second_bit + middle_bit + expected_bit + repetition,
+        "stim/second/middle/expected/unrepeated": second_bit + middle_bit + expected_bit,
+        "stim/second/middle/unexpected/repeated": second_bit + middle_bit  + repetition,
+        "stim/second/middle/unexpected/unrepeated": second_bit + middle_bit,
 
         # RESPONSE
         "response": response_bit,
