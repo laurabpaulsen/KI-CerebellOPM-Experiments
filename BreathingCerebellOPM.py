@@ -41,8 +41,8 @@ OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
 def create_trigger_mapping( stim = 1, target = 2, middle = 4, index = 8,response = 16, correct = 32, incorrect = 64):
     trigger_mapping = {
         "stim/salient": stim,
-        "target/middle": target + middle,
-        "target/index": target + index,
+        "stim/target/middle": target + middle,
+        "stim/target/index": target + index,
         "response/index/correct": response + index + correct,
         "response/middle/incorrect": response + middle + incorrect,
         "response/middle/correct": response + middle + correct,
@@ -220,8 +220,7 @@ class MiddleIndexTactileDiscriminationTask:
                     reset=False
             
             event_counter_in_block += 1
-            event_type = f"target/{list_of_targets[seq]}"
-            
+            event_type = f"stim/target/{list_of_targets[seq]}"
 
             events.append({"ISI": ISI, "event": event_type, "n_in_block": event_counter_in_block, "block": block_idx, "reset_QUEST": False})
 
