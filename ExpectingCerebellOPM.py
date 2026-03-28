@@ -295,8 +295,6 @@ class ExpectationExperiment:
         print("Experiment finished.")
 
     def log_event(self, block="NA", event="NA", time="NA", repeated="NA", expected="NA", rt="NA", correct="NA", intensity = "NA", trigger = "NA", response="NA", log_file=None):
-        #"block,event,time,repeated,expected,response,correct,rt,intensity,trigger\n"
-
         if log_file:
             log_file.write(f"{block},{event},{time},{repeated},{expected},{response},{rt},{correct},{intensity},{trigger}\n")
 
@@ -410,14 +408,14 @@ if __name__ in "__main__":
         connector.change_intensity(intensity)
 
     trigger_mapping = create_trigger_mapping()
-    outpath = OUTPATH / f"sub-{participant_id}_task-expectating.csv"
+    outpath = OUTPATH / f"sub-{participant_id}_task-expecting.csv"
 
     # check whether the output file already exists
     if outpath.exists():
         # append a number to the filename
         i = 1
         while True:
-            new_outpath = OUTPATH / f"sub-{participant_id}_task-expectating_{i}.csv"
+            new_outpath = OUTPATH / f"sub-{participant_id}_task-expecting_{i}.csv"
             if not new_outpath.exists():
                 outpath = new_outpath
                 break
