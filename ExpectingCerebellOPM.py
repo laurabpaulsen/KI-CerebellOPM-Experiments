@@ -286,6 +286,8 @@ class ExpectationExperiment:
                     self.display.show_text(self.env_change_message)
                     self.check_in_on_participant("Starting new block. Check in on the participant.", ask_for_update=True, log_file=log_file)
 
+        # wait a bit before sending the end trigger to ensure the last response is registered properly
+        wait(2)
         self.raise_and_lower_trigger(trigger_mapping["experiment/end"])
         self.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/end"], log_file=log_file)
         
