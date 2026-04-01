@@ -260,7 +260,7 @@ class ExpectationExperiment:
                     while True:
                         candidate = self.listener.get_response()
                         # for testing without participant
-                        # time.sleep(0.7)  # simulate response time
+                        # time.sleep(0.9)  # simulate response time
                         # candidate = np.random.choice(["b", "y"])
 
                         if candidate:
