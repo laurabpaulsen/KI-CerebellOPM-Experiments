@@ -4,7 +4,7 @@ from .SGC_connector import SGCConnector, SGCFakeConnector
 from pathlib import Path
 
 # Params for both experiments
-VALID_INTENSITIES = np.arange(1.0, 10.1, 0.1).round(1).tolist()
+VALID_INTENSITIES = np.arange(1.0, 20.1, 0.1).round(1).tolist()
 STIM_DURATION = 100  # 0.1 ms
 
 TARGET_1 = "index"
@@ -22,7 +22,7 @@ ISIS = [1.31, 1.44, 1.57, 1.69]
 # Params for ExpectingCerebellOPM
 ISI=0.701  # seconds
 RNG_INTERVAL=(1., 1.25)  # seconds
-N_EVENTS_PER_BLOCK=160  # number of stimulus pairs per block
+N_EVENTS_PER_BLOCK=150  # number of stimulus pairs per block
 
 
 

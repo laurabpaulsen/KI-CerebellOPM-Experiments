@@ -233,8 +233,8 @@ class ExpectationExperiment:
                     self.show_fixation()
                     print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}. Stimuli: {event['first']} - {event['second']}")
 
-                    # break in the middle of the block
-                    if i == len(block)//2 and not self.practise_mode:
+                    # break in 1 third and 2 thirds of the block, but only if not in practise mode
+                    if i == len(block)//3 and not self.practise_mode:
                         # break message
                         self.display.show_text(self.break_message)
                         self.check_in_on_participant("Halfway through the block. Check in on the participant.", ask_for_update=False, log_file=log_file)
@@ -259,6 +259,10 @@ class ExpectationExperiment:
                     self.listener.reset_response()  # <- clear any lingering press from previous trial
                     while True:
                         candidate = self.listener.get_response()
+                        # for testing without participant
+                        # time.sleep(0.7)  # simulate response time
+                        # candidate = np.random.choice(["b", "y"])
+
                         if candidate:
                             response = candidate
                             time_of_response = time.perf_counter() - self.start_time

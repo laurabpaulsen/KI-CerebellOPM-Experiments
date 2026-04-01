@@ -559,9 +559,13 @@ def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
         available_start_blocks.remove(start_block)
 
         tmp_order = build_block_order(wanted_transitions, start_blocks=[start_block])
-        order.extend(tmp_order)
-        if i != n_repeats - 1:
-            order.append("break")
+        #order.extend(tmp_order)
+        #if i != n_repeats - 1:
+        #    order.append("break")
+        for idx, b in enumerate(tmp_order):
+            order.append(b)
+            if (idx + 1) % 5 == 0:  # add a break every 5 blocks
+                order.append("break")
 
     return order
 
