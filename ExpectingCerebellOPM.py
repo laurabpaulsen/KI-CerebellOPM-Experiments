@@ -234,7 +234,7 @@ class ExpectationExperiment:
                     print(f" Trial {i + 1} of {len(block)} in block {i_block + 1} of {len(self.blocks)}. Stimuli: {event['first']} - {event['second']}")
 
                     # break in 1 third and 2 thirds of the block, but only if not in practise mode
-                    if i in (len(block)//3, 2*len(block)//3) and not self.practice_mode:
+                    if i in (len(block)//3, 2*len(block)//3) and not self.practise_mode:
                         # break message
                         self.display.show_text(self.break_message)
                         self.check_in_on_participant("Halfway through the block. Check in on the participant.", ask_for_update=False, log_file=log_file)
