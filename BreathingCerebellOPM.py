@@ -563,11 +563,11 @@ def generate_block_order(ISIs: List[float], n_repeats: int) -> List[int]:
         #if i != n_repeats - 1:
         #    order.append("break")
     
-    # insert breaks every 6 blocks
+    # insert breaks every 9 blocks
     order_with_breaks = []
     for idx, block in enumerate(order):
         order_with_breaks.append(block)
-        if (idx + 1) % 6 == 0 and (idx + 1) != len(order):
+        if (idx + 1) % 9 == 0 and (idx + 1) != len(order):
             order_with_breaks.append("break")
     return order_with_breaks
 
