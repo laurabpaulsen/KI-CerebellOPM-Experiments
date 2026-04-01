@@ -22,10 +22,8 @@ from PracticeBreathingCerebellOPM import get_start_intensities, key_color_mappin
 practice_instructions = [
         "In this part of the experiment, you will feel tactile stimuli on your index and middle fingers.",
         "You will be presented with two stimuli in quick succession, and your task is to identify whether \nthe second stimulus was on your index finger or middle finger.",
-    
-        "The first stimulus is predictive of what finger will receive the second stimulus.",
 
-        "However, sometimes the second stimulus will be on the other finger than expected.",
+        "The first and second stimuli are not independent. \n Some first–second finger combinations occur more often than others.",
 
         "Indicate which finger received the second stimulus by pressing the corresponding key. \n\n\n"
         f"{TARGET_1} finger: {key_color_mapping[TARGET_1_KEYS[0]]} \n\n"

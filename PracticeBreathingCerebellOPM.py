@@ -61,12 +61,12 @@ practice_instructions_1 = [
     "During this time, the fixation cross will stay white.",    
     "Following these, a weaker target stimulus will be delivered to either your index or middle finger.",
         
-    "When the target appears, the fixation cross will turn green.",
+    "When the target is presented, the fixation cross will turn green.",
 
     "Indicate which finger received the target by pressing the corresponding key. \n\n\n"
     f"{TARGET_1} finger: {key_color_mapping[TARGET_1_KEYS[0]]} \n\n"
     f"{TARGET_2} finger: {key_color_mapping[TARGET_2_KEYS[0]]}\n\n"
-    "Always use your right index finger to press the corresponding key.",
+    "Always use your right index finger to press the key.",
 
     "Respond as quickly as possible, before the next sequence begins and the fixation cross turns white again.",
         
