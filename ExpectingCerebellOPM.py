@@ -222,8 +222,8 @@ class ExpectationExperiment:
         with open(self.outpath, "w") as log_file:
             log_file.write(self.LOGHEADER)
 
-            self.raise_and_lower_trigger(trigger_mapping["experiment/start"])
-            self.log_event(block="experiment/start", event="experiment/start", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/start"])    
+            self.raise_and_lower_trigger(self.trigger_mapping["experiment/start"])
+            self.log_event(block="experiment/start", event="experiment/start", time=time.perf_counter() - self.start_time, trigger=self.trigger_mapping["experiment/start"])    
 
             # wait for 2 seconds before starting the first trial to give time for the experimenter to get ready after starting the experiment
             wait(2)
@@ -292,8 +292,8 @@ class ExpectationExperiment:
 
             # wait a bit before sending the end trigger to ensure the last response is registered properly
             wait(2)
-            self.raise_and_lower_trigger(trigger_mapping["experiment/end"])
-            self.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - self.start_time, trigger=trigger_mapping["experiment/end"], log_file=log_file)
+            self.raise_and_lower_trigger(self.trigger_mapping["experiment/end"])
+            self.log_event(block="experiment/end", event="experiment/end", time=time.perf_counter() - self.start_time, trigger=self.trigger_mapping["experiment/end"], log_file=log_file)
             
         self.listener.stop_listener()
         print("Experiment finished.")
