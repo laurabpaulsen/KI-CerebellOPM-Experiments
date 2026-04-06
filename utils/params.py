@@ -21,7 +21,7 @@ ISIS = [1.31, 1.44, 1.57, 1.69]
 
 # Params for ExpectingCerebellOPM
 ISI=0.701  # seconds
-RNG_INTERVAL=(1., 1.25)  # seconds
+RNG_INTERVAL=(0.9, 1.2)  # seconds
 N_EVENTS_PER_BLOCK=150  # number of stimulus pairs per block
 
 
