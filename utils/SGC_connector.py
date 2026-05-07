@@ -4,7 +4,7 @@ from pathlib import Path
 import csv
 import numpy as np
 from typing import Union
-    
+import time
 class BaseSGCConnector(ABC):
     def __init__(self, intensity_codes_path: Union[Path, None] = None, start_intensity=1):
         self.command_lookup = self.prep_intensity_codes_lookup(intensity_codes_path)
@@ -41,8 +41,11 @@ class BaseSGCConnector(ABC):
             start = np.ceil(self.current_intensity)
             end = np.floor(target_intensity) + 1
             stepping_stones = np.arange(start, end, 1.0)
-            for stone in stepping_stones:
+            for i, stone in enumerate(stepping_stones):
                 self.send_command(self.command_lookup[stone])
+                # short wait if index divided by 5 is an integer to avoid overwhelming the SGC with commands
+                if i % 5 == 0:
+                    time.sleep(0.1)
         
         self.send_command(self.command_lookup[target_intensity])
         self.current_intensity = target_intensity
