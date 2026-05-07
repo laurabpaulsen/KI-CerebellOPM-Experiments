@@ -67,10 +67,12 @@ if __name__ == "__main__":
 
     for finger, connector in connectors.items():
         connector.set_pulse_duration(STIM_DURATION)
+        print(f"Setting initial intensity for {finger} finger to {intensity}...")
 
         if intensity > 6:
             connector.change_intensity(6)
             time.sleep(1)
+            print(f"Ramping up intensity for {finger} finger to {intensity}...")
             
         connector.change_intensity(intensity)
 
