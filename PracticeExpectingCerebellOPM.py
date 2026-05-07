@@ -4,6 +4,7 @@
 
 import sys
 from pathlib import Path
+import time
 sys.path.append(str(Path(__file__).parent))
 
 from ExpectingCerebellOPM import ExpectationExperiment, create_trigger_mapping
@@ -66,6 +67,11 @@ if __name__ == "__main__":
 
     for finger, connector in connectors.items():
         connector.set_pulse_duration(STIM_DURATION)
+
+        if intensity > 6:
+            connector.change_intensity(6)
+            time.sleep(1)
+            
         connector.change_intensity(intensity)
 
     trigger_mapping = create_trigger_mapping()
