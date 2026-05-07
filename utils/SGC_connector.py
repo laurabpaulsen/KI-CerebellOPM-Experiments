@@ -36,17 +36,15 @@ class BaseSGCConnector(ABC):
         if self.current_intensity == target_intensity:
             return
 
-        elif self.current_intensity > target_intensity:
-            self.send_command(self.command_lookup[target_intensity])
-        else:
-            if target_intensity - self.current_intensity > 1:
-                start = np.ceil(self.current_intensity)
-                end = np.floor(target_intensity) + 1
-                stepping_stones = np.arange(start, end, 1.0)
-                for stone in stepping_stones:
-                    self.send_command(self.command_lookup[stone])
-            self.send_command(self.command_lookup[target_intensity])
-
+        # take stepping stones if the change is more than 1 to avoid problems with SCG 
+        if target_intensity - self.current_intensity > 1:
+            start = np.ceil(self.current_intensity)
+            end = np.floor(target_intensity) + 1
+            stepping_stones = np.arange(start, end, 1.0)
+            for stone in stepping_stones:
+                self.send_command(self.command_lookup[stone])
+        
+        self.send_command(self.command_lookup[target_intensity])
         self.current_intensity = target_intensity
 
     def set_trigger_delay(self, delay=0):
@@ -56,7 +54,6 @@ class BaseSGCConnector(ABC):
         self.send_command(command)
 
     def set_pulse_duration(self, duration=200):
-
         durations = {200: "?L,20$DA#", 100: "?L,10$D9#"}
         if duration in durations:
             self.send_command(durations[duration])
